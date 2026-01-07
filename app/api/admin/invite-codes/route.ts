@@ -35,7 +35,7 @@ export async function GET(req: Request) {
   const supabase = getServerSupabaseAdminClient();
   const { data, error } = await supabase
     .from("invite_codes")
-    .select("code,active,created_at,revoked_at,expires_at,expired_at,max_uses,uses_count,last_used_at")
+    .select("code,active,created_at,revoked_at")
     .order("created_at", { ascending: false });
 
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
