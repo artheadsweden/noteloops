@@ -144,8 +144,13 @@ export default function LoginClient() {
     window.location.href = "/";
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    void onSignIn();
+  };
+
   return (
-    <div className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid gap-2">
         <Label htmlFor="email">Email</Label>
         <Input
@@ -169,7 +174,7 @@ export default function LoginClient() {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Button type="button" onClick={onSignIn}>
+        <Button type="submit">
           Sign in
         </Button>
         <Button type="button" variant="secondary" onClick={onSignUp} disabled={!inviteOk}>
@@ -189,6 +194,6 @@ export default function LoginClient() {
       ) : null}
 
       {status ? <div className="text-sm text-muted-foreground">{status}</div> : null}
-    </div>
+    </form>
   );
 }

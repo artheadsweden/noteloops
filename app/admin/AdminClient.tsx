@@ -128,8 +128,12 @@ export default function AdminClient() {
     const res = await fetch("/api/admin/invite-codes", {
       headers: { authorization: `Bearer ${token}` }
     });
-    const json = (await res.json().catch(() => null)) as null | { items?: InviteCodeRow[] };
-    setItems(json?.items ?? []);
+    const json = (await res.json().catch(() => null)) as null | { ok?: boolean; items?: InviteCodeRow[] };
+    if (res.ok && json?.ok) {
+      setItems(json.items ?? []);
+    } else {
+      setItems([]);
+    }
 
     const tplRes = await fetch("/api/admin/invite-template", {
       headers: { authorization: `Bearer ${token}` }
