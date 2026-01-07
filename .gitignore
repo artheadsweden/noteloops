@@ -1,0 +1,17 @@
+node_modules/
+.next/
+out/
+
+# local env files
+.env
+.env.*
+!.env.example
+
+# misc
+.DS_Store
+
+# generated book audio (store/CDN instead of git)
+public/input/**/audio.mp3
+public/input/**/*.mp3
+public/input/**/*.m4a
+public/input/**/*.wav

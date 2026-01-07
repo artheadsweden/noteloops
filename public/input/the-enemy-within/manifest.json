@@ -1,0 +1,345 @@
+{
+  "schema_version": 1,
+  "book_id": "the-enemy-within",
+  "build_id": "v3",
+  "cover_image": "cover.png",
+  "summary_short": "A historical fiction novel set against the backdrop of the 1984-85 UK miners' strike, exploring themes of solidarity, activism, and social change through the eyes of a young activist in London.",
+  "summary_long": "<p>In the back rooms of Britain’s 1980s, where coal dust clung to coats and music carried further than any speech, a small circle begins recording what the country is trying to forget. Cassettes labelled in thick marker, VHS tapes passed hand to hand, names written down and crossed out again. Strikes, gigs, coach meetings, late night phones, a walkie talkie crackling with callsigns that sound like jokes until they don’t.</p><br><p>The Enemy Within follows the people living inside that pressure, ordinary, stubborn, frightened, funny, and furious, as protest turns into organisation, organisation turns into risk, and every decision starts to feel like it will echo for decades. It is a story about loyalty and betrayal, about who gets to tell the nation’s story, and what happens when the truth is archived by those who have the least power to protect it.</p><br><p>Somewhere in all that noise is a single recording that could change everything, if it survives long enough to be heard.</p>",
+  "downloads": {
+    "epub": "The_Enemy_Within.epub",
+    "pdf": "The_Enemy_Within.pdf"
+  },
+  "created_at": "2026-01-05T22:19:42+00:00",
+  "chapters": [
+    {
+      "order_index": 1,
+      "source_base_name": "about_the_author",
+      "chapter_id": "about-the-author",
+      "title": "About the author",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/about-the-author/text.html",
+        "text_json": "chapters/about-the-author/text.json",
+        "align_json": "chapters/about-the-author/align.json",
+        "audio_mp3": "chapters/about-the-author/audio.mp3"
+      }
+    },
+    {
+      "order_index": 2,
+      "source_base_name": "preface",
+      "chapter_id": "preface",
+      "title": "Preface",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/preface/text.html",
+        "text_json": "chapters/preface/text.json",
+        "align_json": "chapters/preface/align.json",
+        "audio_mp3": "chapters/preface/audio.mp3"
+      }
+    },
+    {
+      "order_index": 3,
+      "source_base_name": "prologue",
+      "chapter_id": "prologue",
+      "title": "Prologue – November 2025, London",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/prologue/text.html",
+        "text_json": "chapters/prologue/text.json",
+        "align_json": "chapters/prologue/align.json",
+        "audio_mp3": "chapters/prologue/audio.mp3"
+      }
+    },
+    {
+      "order_index": 4,
+      "source_base_name": "chapter01",
+      "chapter_id": "chapter01",
+      "title": "Chapter One – Saturday, 10 March 1984, Grimethorpe, South Yorkshire",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/chapter01/text.html",
+        "text_json": "chapters/chapter01/text.json",
+        "align_json": "chapters/chapter01/align.json",
+        "audio_mp3": "chapters/chapter01/audio.mp3"
+      }
+    },
+    {
+      "order_index": 5,
+      "source_base_name": "chapter02",
+      "chapter_id": "chapter02",
+      "title": "Chapter Two – April 1984, Grimethorpe to London",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/chapter02/text.html",
+        "text_json": "chapters/chapter02/text.json",
+        "align_json": "chapters/chapter02/align.json",
+        "audio_mp3": "chapters/chapter02/audio.mp3"
+      }
+    },
+    {
+      "order_index": 6,
+      "source_base_name": "chapter03",
+      "chapter_id": "chapter03",
+      "title": "Chapter Three – June–July 1984, London Bedsit and Orgreave / “Enemy Within”",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/chapter03/text.html",
+        "text_json": "chapters/chapter03/text.json",
+        "align_json": "chapters/chapter03/align.json",
+        "audio_mp3": "chapters/chapter03/audio.mp3"
+      }
+    },
+    {
+      "order_index": 7,
+      "source_base_name": "chapter04",
+      "chapter_id": "chapter04",
+      "title": "Chapter Four – July–October 1984, London – Getting It Out",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/chapter04/text.html",
+        "text_json": "chapters/chapter04/text.json",
+        "align_json": "chapters/chapter04/align.json",
+        "audio_mp3": "chapters/chapter04/audio.mp3"
+      }
+    },
+    {
+      "order_index": 8,
+      "source_base_name": "chapter05",
+      "chapter_id": "chapter05",
+      "title": "Chapter Five – October 1984, London – Brighton Bombing and 100 Club",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/chapter05/text.html",
+        "text_json": "chapters/chapter05/text.json",
+        "align_json": "chapters/chapter05/align.json",
+        "audio_mp3": "chapters/chapter05/audio.mp3"
+      }
+    },
+    {
+      "order_index": 9,
+      "source_base_name": "chapter06",
+      "chapter_id": "chapter06",
+      "title": "Chapter Six – November 1984–February 1985, London – Building Networks",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/chapter06/text.html",
+        "text_json": "chapters/chapter06/text.json",
+        "align_json": "chapters/chapter06/align.json",
+        "audio_mp3": "chapters/chapter06/audio.mp3"
+      }
+    },
+    {
+      "order_index": 10,
+      "source_base_name": "chapter07",
+      "chapter_id": "chapter07",
+      "title": "Chapter Seven – March 1985, Grimethorpe, South Yorkshire",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/chapter07/text.html",
+        "text_json": "chapters/chapter07/text.json",
+        "align_json": "chapters/chapter07/align.json",
+        "audio_mp3": "chapters/chapter07/audio.mp3"
+      }
+    },
+    {
+      "order_index": 11,
+      "source_base_name": "chapter08",
+      "chapter_id": "chapter08",
+      "title": "Chapter Eight – July 1985, London – Live Aid and New Alliances",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/chapter08/text.html",
+        "text_json": "chapters/chapter08/text.json",
+        "align_json": "chapters/chapter08/align.json",
+        "audio_mp3": "chapters/chapter08/audio.mp3"
+      }
+    },
+    {
+      "order_index": 12,
+      "source_base_name": "chapter09",
+      "chapter_id": "chapter09",
+      "title": "Chapter Nine – October 1985–February 1986, East London – Securing The Furnace",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/chapter09/text.html",
+        "text_json": "chapters/chapter09/text.json",
+        "align_json": "chapters/chapter09/align.json",
+        "audio_mp3": "chapters/chapter09/audio.mp3"
+      }
+    },
+    {
+      "order_index": 13,
+      "source_base_name": "chapter10",
+      "chapter_id": "chapter10",
+      "title": "Chapter Ten – April 1986, London – Chernobyl and The Furnace Opens",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/chapter10/text.html",
+        "text_json": "chapters/chapter10/text.json",
+        "align_json": "chapters/chapter10/align.json",
+        "audio_mp3": "chapters/chapter10/audio.mp3"
+      }
+    },
+    {
+      "order_index": 14,
+      "source_base_name": "chapter11",
+      "chapter_id": "chapter11",
+      "title": "Chapter Eleven – October 1986, London – Big Bang and Broken Pieces",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/chapter11/text.html",
+        "text_json": "chapters/chapter11/text.json",
+        "align_json": "chapters/chapter11/align.json",
+        "audio_mp3": "chapters/chapter11/audio.mp3"
+      }
+    },
+    {
+      "order_index": 15,
+      "source_base_name": "chapter12",
+      "chapter_id": "chapter12",
+      "title": "Chapter Twelve – June 1987, London – Glass Saints and Growing Networks",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/chapter12/text.html",
+        "text_json": "chapters/chapter12/text.json",
+        "align_json": "chapters/chapter12/align.json",
+        "audio_mp3": "chapters/chapter12/audio.mp3"
+      }
+    },
+    {
+      "order_index": 16,
+      "source_base_name": "chapter13",
+      "chapter_id": "chapter13",
+      "title": "Chapter Thirteen – December 1987 – London / Oxfordshire – Glass Saints and Country House",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/chapter13/text.html",
+        "text_json": "chapters/chapter13/text.json",
+        "align_json": "chapters/chapter13/align.json",
+        "audio_mp3": "chapters/chapter13/audio.mp3"
+      }
+    },
+    {
+      "order_index": 17,
+      "source_base_name": "chapter14",
+      "chapter_id": "chapter14",
+      "title": "Chapter Fourteen – May 1988, London – SECTION 28 and Saints Rising",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/chapter14/text.html",
+        "text_json": "chapters/chapter14/text.json",
+        "align_json": "chapters/chapter14/align.json",
+        "audio_mp3": "chapters/chapter14/audio.mp3"
+      }
+    },
+    {
+      "order_index": 18,
+      "source_base_name": "chapter15",
+      "chapter_id": "chapter15",
+      "title": "Chapter Fifteen – April 1989, Leeds and London – Hillsborough and the Next Front",
+      "audio_present": true,
+      "assets": {
+        "text_html": "chapters/chapter15/text.html",
+        "text_json": "chapters/chapter15/text.json",
+        "align_json": "chapters/chapter15/align.json",
+        "audio_mp3": "chapters/chapter15/audio.mp3"
+      }
+    },
+    {
+      "order_index": 19,
+      "source_base_name": "chapter16",
+      "chapter_id": "chapter16",
+      "title": "Chapter Sixteen – Nov 1989, London and Berlin – Wall Falls, Finchley Rises",
+      "audio_present": false,
+      "assets": {
+        "text_html": "chapters/chapter16/text.html",
+        "text_json": "chapters/chapter16/text.json",
+        "align_json": "chapters/chapter16/align.json"
+      }
+    },
+    {
+      "order_index": 20,
+      "source_base_name": "chapter17",
+      "chapter_id": "chapter17",
+      "title": "Chapter Seventeen – February 1990, London – Coach Grid and Phone Tree",
+      "audio_present": false,
+      "assets": {
+        "text_html": "chapters/chapter17/text.html",
+        "text_json": "chapters/chapter17/text.json",
+        "align_json": "chapters/chapter17/align.json"
+      }
+    },
+    {
+      "order_index": 21,
+      "source_base_name": "chapter18",
+      "chapter_id": "chapter18",
+      "title": "Chapter Eighteen – March 1990, London – Steward School",
+      "audio_present": false,
+      "assets": {
+        "text_html": "chapters/chapter18/text.html",
+        "text_json": "chapters/chapter18/text.json",
+        "align_json": "chapters/chapter18/align.json"
+      }
+    },
+    {
+      "order_index": 22,
+      "source_base_name": "chapter19",
+      "chapter_id": "chapter19",
+      "title": "Chapter Nineteen – 31 March 1990, London – Battle of Trafalgar Square",
+      "audio_present": false,
+      "assets": {
+        "text_html": "chapters/chapter19/text.html",
+        "text_json": "chapters/chapter19/text.json",
+        "align_json": "chapters/chapter19/align.json"
+      }
+    },
+    {
+      "order_index": 23,
+      "source_base_name": "chapter20",
+      "chapter_id": "chapter20",
+      "title": "Chapter Twenty – April 1990, London – The Square: What Really Happened",
+      "audio_present": false,
+      "assets": {
+        "text_html": "chapters/chapter20/text.html",
+        "text_json": "chapters/chapter20/text.json",
+        "align_json": "chapters/chapter20/align.json"
+      }
+    },
+    {
+      "order_index": 24,
+      "source_base_name": "chapter21",
+      "chapter_id": "chapter21",
+      "title": "Chapter Twenty-One – June 1990, London – Court-Clog Day",
+      "audio_present": false,
+      "assets": {
+        "text_html": "chapters/chapter21/text.html",
+        "text_json": "chapters/chapter21/text.json",
+        "align_json": "chapters/chapter21/align.json"
+      }
+    },
+    {
+      "order_index": 25,
+      "source_base_name": "chapter22",
+      "chapter_id": "chapter22",
+      "title": "Chapter Twenty-Two – November 1990, London – Thatcher Falls",
+      "audio_present": false,
+      "assets": {
+        "text_html": "chapters/chapter22/text.html",
+        "text_json": "chapters/chapter22/text.json",
+        "align_json": "chapters/chapter22/align.json"
+      }
+    },
+    {
+      "order_index": 26,
+      "source_base_name": "epilogue",
+      "chapter_id": "epilogue",
+      "title": "Epilogue– November 2025, London – Enemy Within, Once More",
+      "audio_present": false,
+      "assets": {
+        "text_html": "chapters/epilogue/text.html",
+        "text_json": "chapters/epilogue/text.json",
+        "align_json": "chapters/epilogue/align.json"
+      }
+    }
+  ]
+}

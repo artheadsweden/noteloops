@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --background: 0 0% 98%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 226 70% 55%;
+    --primary: 226 70% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --radius: 12px;
+
+    --shadow-sm: 0 1px 2px 0 hsl(var(--foreground) / 0.06);
+    --shadow: 0 1px 3px 0 hsl(var(--foreground) / 0.08), 0 1px 2px -1px hsl(var(--foreground) / 0.08);
+    --shadow-md: 0 4px 6px -1px hsl(var(--foreground) / 0.10), 0 2px 4px -2px hsl(var(--foreground) / 0.10);
+    --shadow-lg: 0 10px 15px -3px hsl(var(--foreground) / 0.12), 0 4px 6px -4px hsl(var(--foreground) / 0.12);
+    --shadow-xl: 0 20px 25px -5px hsl(var(--foreground) / 0.14), 0 8px 10px -6px hsl(var(--foreground) / 0.14);
+    --shadow-2xl: 0 25px 50px -12px hsl(var(--foreground) / 0.18);
+  }
+
+  .dark {
+    color-scheme: dark;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 226 70% 55%;
+    --primary: 226 70% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --shadow-sm: 0 1px 2px 0 hsl(var(--foreground) / 0.04);
+    --shadow: 0 1px 3px 0 hsl(var(--foreground) / 0.06), 0 1px 2px -1px hsl(var(--foreground) / 0.06);
+    --shadow-md: 0 4px 6px -1px hsl(var(--foreground) / 0.08), 0 2px 4px -2px hsl(var(--foreground) / 0.08);
+    --shadow-lg: 0 10px 15px -3px hsl(var(--foreground) / 0.10), 0 4px 6px -4px hsl(var(--foreground) / 0.10);
+    --shadow-xl: 0 20px 25px -5px hsl(var(--foreground) / 0.12), 0 8px 10px -6px hsl(var(--foreground) / 0.12);
+    --shadow-2xl: 0 25px 50px -12px hsl(var(--foreground) / 0.16);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+@layer components {
+  .reader-prose p[data-pid] {
+    @apply cursor-pointer rounded px-1 py-0.5 transition-colors;
+  }
+
+  .reader-prose p[data-pid][data-playing="true"] {
+    background-color: hsl(var(--accent));
+    border-left: 4px solid hsl(var(--primary));
+    padding-left: 0.6rem;
+  }
+
+  .reader-prose p[data-pid]:hover {
+    @apply bg-muted;
+  }
+
+  .reader-prose p[data-pid]:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
