@@ -798,7 +798,7 @@ export default function ReaderClient({
   return (
     <>
       <div className="mt-6 grid gap-6 lg:grid-cols-[360px_1fr]">
-        <Card className="lg:sticky lg:top-6 lg:self-start">
+        <Card className="lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
           <CardContent className="space-y-3 p-4">
             <div className="flex items-center justify-between">
               <div className="text-sm font-medium">Audio</div>
@@ -814,75 +814,73 @@ export default function ReaderClient({
             <>
               <audio ref={audioRef} src={audioUrl} preload="metadata" className="hidden" />
 
-              <div className="grid gap-2">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full sm:w-auto"
-                    onClick={togglePlay}
-                  >
-                    {isPlaying ? (
-                      <>
-                        <Pause className="h-4 w-4" aria-hidden="true" />
-                        Pause
-                      </>
-                    ) : (
-                      <>
-                        <Play className="h-4 w-4" aria-hidden="true" />
-                        Play
-                      </>
-                    )}
-                  </Button>
+              <div className="grid gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={togglePlay}
+                >
+                  {isPlaying ? (
+                    <>
+                      <Pause className="h-4 w-4" aria-hidden="true" />
+                      Pause
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-4 w-4" aria-hidden="true" />
+                      Play
+                    </>
+                  )}
+                </Button>
 
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
-                    <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
-                      <span className="inline-flex items-center gap-2">
-                        <Gauge className="h-4 w-4" aria-hidden="true" />
-                        Speed
-                      </span>
-                      <select
-                        className="h-9 rounded-lg border border-input bg-background px-2 py-1 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                        value={playbackRate}
-                        onChange={(e) => setPlaybackRate(Number(e.target.value))}
-                      >
-                        {[0.75, 1, 1.25, 1.5, 2].map((r) => (
-                          <option key={r} value={r}>
-                            {r}x
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                <div className="grid gap-2">
+                  <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                    <span className="inline-flex items-center gap-2">
+                      <Gauge className="h-4 w-4" aria-hidden="true" />
+                      Speed
+                    </span>
+                    <select
+                      className="h-9 rounded-lg border border-input bg-background px-2 py-1 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                      value={playbackRate}
+                      onChange={(e) => setPlaybackRate(Number(e.target.value))}
+                    >
+                      {[0.75, 1, 1.25, 1.5, 2].map((r) => (
+                        <option key={r} value={r}>
+                          {r}x
+                        </option>
+                      ))}
+                    </select>
+                  </label>
 
-                    <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
-                      <span className="inline-flex items-center gap-2">
-                        <Timer className="h-4 w-4" aria-hidden="true" />
-                        Sleep
-                      </span>
-                      <select
-                        className="h-9 rounded-lg border border-input bg-background px-2 py-1 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                        value={sleepPresetSeconds}
-                        onChange={(e) => {
-                          const next = Number(e.target.value);
-                          if (!Number.isFinite(next) || next <= 0) {
-                            setSleepPresetSeconds(0);
-                            setSleepRemainingSeconds(null);
-                            sleepFadingRef.current = false;
-                            return;
-                          }
-                          setSleepPresetSeconds(next);
-                          setSleepRemainingSeconds(next);
+                  <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                    <span className="inline-flex items-center gap-2">
+                      <Timer className="h-4 w-4" aria-hidden="true" />
+                      Sleep
+                    </span>
+                    <select
+                      className="h-9 rounded-lg border border-input bg-background px-2 py-1 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                      value={sleepPresetSeconds}
+                      onChange={(e) => {
+                        const next = Number(e.target.value);
+                        if (!Number.isFinite(next) || next <= 0) {
+                          setSleepPresetSeconds(0);
+                          setSleepRemainingSeconds(null);
                           sleepFadingRef.current = false;
-                        }}
-                      >
-                        <option value={0}>Off</option>
-                        <option value={10 * 60}>10m</option>
-                        <option value={15 * 60}>15m</option>
-                        <option value={30 * 60}>30m</option>
-                        <option value={60 * 60}>60m</option>
-                      </select>
-                    </label>
-                  </div>
+                          return;
+                        }
+                        setSleepPresetSeconds(next);
+                        setSleepRemainingSeconds(next);
+                        sleepFadingRef.current = false;
+                      }}
+                    >
+                      <option value={0}>Off</option>
+                      <option value={10 * 60}>10m</option>
+                      <option value={15 * 60}>15m</option>
+                      <option value={30 * 60}>30m</option>
+                      <option value={60 * 60}>60m</option>
+                    </select>
+                  </label>
                 </div>
 
                 {sleepRemainingSeconds !== null ? (
@@ -977,7 +975,7 @@ export default function ReaderClient({
         <section>
           <div
             ref={containerRef}
-            className="reader-prose prose prose-neutral dark:prose-invert mx-auto w-full max-w-[78ch] rounded-xl border bg-card p-4 leading-relaxed sm:p-6 max-h-[calc(100vh-11rem)] overflow-y-auto"
+            className="reader-prose prose prose-neutral dark:prose-invert mx-auto w-full max-w-[78ch] rounded-xl border bg-card p-4 leading-relaxed sm:p-6 lg:min-h-[calc(100vh-3rem)]"
           />
         </section>
       </div>
