@@ -4,6 +4,7 @@ import Image from "next/image";
 import { BookOpen, Headphones, MessageSquare } from "lucide-react";
 
 import InviteClient from "@/app/InviteClient";
+import WaitlistClient from "@/app/WaitlistClient";
 import AppFrame from "@/app/components/AppFrame";
 import SectionCard from "@/components/layout/SectionCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -58,13 +59,27 @@ export default async function HomePage() {
           >
             <div className="space-y-2">
               <h2 className="text-lg font-semibold">Enter your invite code</h2>
-              <p className="text-sm text-muted-foreground">Continue to create an account or sign in.</p>
+              <p className="text-sm text-muted-foreground">
+                Invited authors only. Continue to create an account or sign in.
+              </p>
             </div>
             <div className="mt-5">
               <InviteClient />
               <div className="mt-4 text-sm text-muted-foreground">
                 Don’t have a code? Ask the author for an invite link.
               </div>
+            </div>
+
+            <div className="my-6 h-px bg-border/60" />
+
+            <div className="space-y-2">
+              <h3 className="text-base font-semibold">Join the waitlist</h3>
+              <p className="text-sm text-muted-foreground">
+                No invite yet? Leave your email and we’ll reach out.
+              </p>
+            </div>
+            <div className="mt-5">
+              <WaitlistClient />
             </div>
           </div>
 

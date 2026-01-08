@@ -5,6 +5,7 @@ import { Moon, Sun } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getSupabaseUserSettings, updateSupabaseUserSettings } from "@/services/settings";
 
 type Theme = "light" | "dark";
 
@@ -16,24 +17,45 @@ export default function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {
-    const stored = localStorage.getItem("theme");
-    if (stored === "light" || stored === "dark") {
-      setTheme(stored);
-      applyTheme(stored);
-      return;
+    // Apply local theme immediately (fast), then prefer Supabase if present.
+    try {
+      const stored = localStorage.getItem("theme");
+      if (stored === "light" || stored === "dark") {
+        setTheme(stored);
+        applyTheme(stored);
+      } else {
+        const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+        const initial: Theme = prefersDark ? "dark" : "light";
+        setTheme(initial);
+        applyTheme(initial);
+        localStorage.setItem("theme", initial);
+      }
+    } catch {
+      // ignore
     }
 
-    const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
-    const initial: Theme = prefersDark ? "dark" : "light";
-    setTheme(initial);
-    applyTheme(initial);
-    localStorage.setItem("theme", initial);
+    void (async () => {
+      const settings = await getSupabaseUserSettings();
+      if (!settings?.theme) return;
+      setTheme(settings.theme);
+      applyTheme(settings.theme);
+      try {
+        localStorage.setItem("theme", settings.theme);
+      } catch {
+        // ignore
+      }
+    })();
   }, []);
 
   const setAndPersist = (next: Theme) => {
     setTheme(next);
     applyTheme(next);
-    localStorage.setItem("theme", next);
+    try {
+      localStorage.setItem("theme", next);
+    } catch {
+      // ignore
+    }
+    void updateSupabaseUserSettings({ theme: next });
   };
 
   return (

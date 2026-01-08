@@ -59,6 +59,14 @@ export default function HeaderNav() {
         return;
       }
 
+      // Keep the server-side auth gate cookie in sync with the client session.
+      // This prevents cases where the header shows "signed in" but middleware
+      // blocks protected routes (e.g. /account) due to a missing sb_ok cookie.
+      await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { authorization: `Bearer ${token}` }
+      }).catch(() => null);
+
       const res = await fetch("/api/admin/me", {
         headers: { authorization: `Bearer ${token}` }
       }).catch(() => null);

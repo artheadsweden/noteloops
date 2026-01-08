@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  ChevronDown,
   Gauge,
   List,
   LocateFixed,
@@ -19,6 +20,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Sheet,
@@ -27,8 +29,11 @@ import {
   SheetTitle
 } from "@/components/ui/sheet";
 
+import { cn } from "@/lib/utils";
+
 import type { AlignSegment, AlignWord } from "@/services/input/align";
 import { getLocalProgress, getSupabaseProgress, saveProgress } from "@/services/progress";
+import { getSupabaseUserSettings, updateSupabaseUserSettings } from "@/services/settings";
 import {
   addChapterFeedback,
   addFeedback,
@@ -327,12 +332,33 @@ export default function ReaderClient({
     }
   }, []);
 
+  const readNumberSetting = useCallback((key: string, defaultValue: number) => {
+    try {
+      const raw = window.localStorage.getItem(key);
+      if (raw === null) return defaultValue;
+      const parsed = Number(raw);
+      return Number.isFinite(parsed) ? parsed : defaultValue;
+    } catch {
+      return defaultValue;
+    }
+  }, []);
+
+  const writeNumberSetting = useCallback((key: string, value: number) => {
+    try {
+      window.localStorage.setItem(key, String(value));
+    } catch {
+      // ignore
+    }
+  }, []);
+
   const SETTINGS = useMemo(
     () => ({
       autoAdvance: `reader:autoAdvance`,
       autoScroll: `reader:autoScrollToTop`,
       highlightParagraph: `reader:highlightParagraph`,
-      highlightWord: `reader:highlightWord`
+      highlightWord: `reader:highlightWord`,
+      playbackRate: `reader:playbackRate`,
+      sleepPresetSeconds: `reader:sleepPresetSeconds`
     }),
     []
   );
@@ -352,6 +378,57 @@ export default function ReaderClient({
   const [sleepPresetSeconds, setSleepPresetSeconds] = useState(0);
   const [sleepRemainingSeconds, setSleepRemainingSeconds] = useState<number | null>(null);
   const sleepFadingRef = useRef(false);
+
+  useEffect(() => {
+    const rate = readNumberSetting(SETTINGS.playbackRate, 1);
+    setPlaybackRate(rate);
+
+    const preset = Math.max(0, Math.floor(readNumberSetting(SETTINGS.sleepPresetSeconds, 0)));
+    setSleepPresetSeconds(preset);
+    setSleepRemainingSeconds(preset > 0 ? preset : null);
+    sleepFadingRef.current = false;
+  }, [SETTINGS, readNumberSetting]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const settings = await getSupabaseUserSettings();
+      if (cancelled || !settings?.reader) return;
+
+      const reader = settings.reader;
+      if (typeof reader.autoAdvance === "boolean") {
+        setAutoAdvanceEnabled(reader.autoAdvance);
+        writeBoolSetting(SETTINGS.autoAdvance, reader.autoAdvance);
+      }
+      if (typeof reader.autoScrollToTop === "boolean") {
+        setAutoScrollToTopEnabled(reader.autoScrollToTop);
+        writeBoolSetting(SETTINGS.autoScroll, reader.autoScrollToTop);
+      }
+      if (typeof reader.highlightParagraph === "boolean") {
+        setHighlightParagraphEnabled(reader.highlightParagraph);
+        writeBoolSetting(SETTINGS.highlightParagraph, reader.highlightParagraph);
+      }
+      if (typeof reader.highlightWord === "boolean") {
+        setHighlightWordEnabled(reader.highlightWord);
+        writeBoolSetting(SETTINGS.highlightWord, reader.highlightWord);
+      }
+      if (typeof reader.playbackRate === "number" && Number.isFinite(reader.playbackRate)) {
+        setPlaybackRate(reader.playbackRate);
+        writeNumberSetting(SETTINGS.playbackRate, reader.playbackRate);
+      }
+      if (typeof reader.sleepPresetSeconds === "number" && Number.isFinite(reader.sleepPresetSeconds)) {
+        const preset = Math.max(0, Math.floor(reader.sleepPresetSeconds));
+        setSleepPresetSeconds(preset);
+        setSleepRemainingSeconds(preset > 0 ? preset : null);
+        writeNumberSetting(SETTINGS.sleepPresetSeconds, preset);
+        sleepFadingRef.current = false;
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [SETTINGS, writeBoolSetting, writeNumberSetting]);
 
   const [drawer, setDrawer] = useState<DrawerState | null>(null);
   const [drawerLoading, setDrawerLoading] = useState(false);
@@ -406,13 +483,6 @@ export default function ReaderClient({
   }, []);
 
   const sleepActive = sleepRemainingSeconds !== null && sleepRemainingSeconds > 0;
-
-  useEffect(() => {
-    // Reset sleep timer when the chapter/audio changes.
-    setSleepPresetSeconds(0);
-    setSleepRemainingSeconds(null);
-    sleepFadingRef.current = false;
-  }, [chapterId, audioUrl]);
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -1295,69 +1365,89 @@ export default function ReaderClient({
               {alignStatus ? <span className="text-muted-foreground"> · {alignStatus}</span> : null}
             </div>
 
-            <div className="grid gap-2 rounded-xl bg-muted p-2">
-              <div className="text-xs font-medium text-muted-foreground">Playback</div>
+            <Collapsible defaultOpen>
+              <div className="flex items-center justify-between rounded-xl bg-muted px-2 py-2">
+                <div className="text-xs font-medium text-muted-foreground">Playback</div>
+                <CollapsibleTrigger asChild>
+                  <Button type="button" variant="ghost" size="icon" className="h-7 w-7">
+                    <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                  </Button>
+                </CollapsibleTrigger>
+              </div>
+              <CollapsibleContent className="grid gap-2 rounded-xl bg-muted p-2 pt-0">
+                <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                  <span>Auto-advance</span>
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border border-input bg-background"
+                    checked={autoAdvanceEnabled}
+                    onChange={(e) => {
+                      const next = e.target.checked;
+                      setAutoAdvanceEnabled(next);
+                      writeBoolSetting(SETTINGS.autoAdvance, next);
+                      void updateSupabaseUserSettings({ reader: { autoAdvance: next } });
+                    }}
+                  />
+                </label>
 
-              <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
-                <span>Auto-advance</span>
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 rounded border border-input bg-background"
-                  checked={autoAdvanceEnabled}
-                  onChange={(e) => {
-                    const next = e.target.checked;
-                    setAutoAdvanceEnabled(next);
-                    writeBoolSetting(SETTINGS.autoAdvance, next);
-                  }}
-                />
-              </label>
+                <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                  <span>Auto-scroll to top</span>
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border border-input bg-background"
+                    checked={autoScrollToTopEnabled}
+                    onChange={(e) => {
+                      const next = e.target.checked;
+                      setAutoScrollToTopEnabled(next);
+                      writeBoolSetting(SETTINGS.autoScroll, next);
+                      void updateSupabaseUserSettings({ reader: { autoScrollToTop: next } });
+                    }}
+                  />
+                </label>
+              </CollapsibleContent>
+            </Collapsible>
 
-              <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
-                <span>Auto-scroll to top</span>
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 rounded border border-input bg-background"
-                  checked={autoScrollToTopEnabled}
-                  onChange={(e) => {
-                    const next = e.target.checked;
-                    setAutoScrollToTopEnabled(next);
-                    writeBoolSetting(SETTINGS.autoScroll, next);
-                  }}
-                />
-              </label>
-            </div>
+            <Collapsible defaultOpen>
+              <div className="flex items-center justify-between rounded-xl bg-muted px-2 py-2">
+                <div className="text-xs font-medium text-muted-foreground">Highlighting</div>
+                <CollapsibleTrigger asChild>
+                  <Button type="button" variant="ghost" size="icon" className="h-7 w-7">
+                    <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                  </Button>
+                </CollapsibleTrigger>
+              </div>
+              <CollapsibleContent className="grid gap-2 rounded-xl bg-muted p-2 pt-0">
+                <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                  <span>Paragraph</span>
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border border-input bg-background"
+                    checked={highlightParagraphEnabled}
+                    onChange={(e) => {
+                      const next = e.target.checked;
+                      setHighlightParagraphEnabled(next);
+                      writeBoolSetting(SETTINGS.highlightParagraph, next);
+                      void updateSupabaseUserSettings({ reader: { highlightParagraph: next } });
+                    }}
+                  />
+                </label>
 
-            <div className="grid gap-2 rounded-xl bg-muted p-2">
-              <div className="text-xs font-medium text-muted-foreground">Highlighting</div>
-
-              <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
-                <span>Paragraph</span>
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 rounded border border-input bg-background"
-                  checked={highlightParagraphEnabled}
-                  onChange={(e) => {
-                    const next = e.target.checked;
-                    setHighlightParagraphEnabled(next);
-                    writeBoolSetting(SETTINGS.highlightParagraph, next);
-                  }}
-                />
-              </label>
-
-              <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
-                <span>Word</span>
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 rounded border border-input bg-background"
-                  checked={highlightWordEnabled}
-                  onChange={(e) => {
-                    const next = e.target.checked;
-                    setHighlightWordEnabled(next);
-                    writeBoolSetting(SETTINGS.highlightWord, next);
-                  }}
-                />
-              </label>
-            </div>
+                <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                  <span>Word</span>
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border border-input bg-background"
+                    checked={highlightWordEnabled}
+                    onChange={(e) => {
+                      const next = e.target.checked;
+                      setHighlightWordEnabled(next);
+                      writeBoolSetting(SETTINGS.highlightWord, next);
+                      void updateSupabaseUserSettings({ reader: { highlightWord: next } });
+                    }}
+                  />
+                </label>
+              </CollapsibleContent>
+            </Collapsible>
 
           <div className="h-px bg-border/60" />
           {audioUrl ? (
@@ -1384,74 +1474,98 @@ export default function ReaderClient({
                   )}
                 </Button>
 
-                <div className="grid gap-2">
-                  <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
-                    <span className="inline-flex items-center gap-2">
-                      <Gauge className="h-4 w-4" aria-hidden="true" />
-                      Speed
-                    </span>
-                    <select
-                      className="h-9 rounded-lg border border-input bg-background px-2 py-1 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                      value={playbackRate}
-                      onChange={(e) => setPlaybackRate(Number(e.target.value))}
-                    >
-                      {[0.75, 1, 1.25, 1.5, 2].map((r) => (
-                        <option key={r} value={r}>
-                          {r}x
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
-                    <span className="inline-flex items-center gap-2">
-                      <Timer className="h-4 w-4" aria-hidden="true" />
-                      Sleep
-                    </span>
-                    <select
-                      className="h-9 rounded-lg border border-input bg-background px-2 py-1 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                      value={sleepPresetSeconds}
-                      onChange={(e) => {
-                        const next = Number(e.target.value);
-                        if (!Number.isFinite(next) || next <= 0) {
-                          setSleepPresetSeconds(0);
-                          setSleepRemainingSeconds(null);
-                          sleepFadingRef.current = false;
-                          return;
-                        }
-                        setSleepPresetSeconds(next);
-                        setSleepRemainingSeconds(next);
-                        sleepFadingRef.current = false;
-                      }}
-                    >
-                      <option value={0}>Off</option>
-                      <option value={10 * 60}>10m</option>
-                      <option value={15 * 60}>15m</option>
-                      <option value={30 * 60}>30m</option>
-                      <option value={60 * 60}>60m</option>
-                    </select>
-                  </label>
-                </div>
-
-                {sleepRemainingSeconds !== null ? (
-                  <div className="text-xs text-muted-foreground">Sleep in {formatTime(sleepRemainingSeconds)}</div>
-                ) : null}
-
-                <div className="grid gap-1">
-                  <input
-                    type="range"
-                    min={0}
-                    max={Math.max(0, duration)}
-                    step={0.1}
-                    value={Math.min(currentTime, duration || 0)}
-                    onChange={(e) => seekTo(Number(e.target.value))}
-                    disabled={!Number.isFinite(duration) || duration <= 0}
-                  />
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{formatTime(currentTime)}</span>
-                    <span>{formatTime(duration)}</span>
+                <Collapsible defaultOpen>
+                  <div className="flex items-center justify-between rounded-xl bg-muted px-2 py-2">
+                    <div className="text-xs font-medium text-muted-foreground">Player</div>
+                    <CollapsibleTrigger asChild>
+                      <Button type="button" variant="ghost" size="icon" className="h-7 w-7">
+                        <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                      </Button>
+                    </CollapsibleTrigger>
                   </div>
-                </div>
+                  <CollapsibleContent className="grid gap-3 rounded-xl bg-muted p-2 pt-0">
+                    <div className="grid gap-2">
+                      <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                        <span className="inline-flex items-center gap-2">
+                          <Gauge className="h-4 w-4" aria-hidden="true" />
+                          Speed
+                        </span>
+                        <select
+                          className="h-9 rounded-lg border border-input bg-background px-2 py-1 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                          value={playbackRate}
+                          onChange={(e) => {
+                            const next = Number(e.target.value);
+                            if (!Number.isFinite(next) || next <= 0) return;
+                            setPlaybackRate(next);
+                            writeNumberSetting(SETTINGS.playbackRate, next);
+                            void updateSupabaseUserSettings({ reader: { playbackRate: next } });
+                          }}
+                        >
+                          {[0.75, 1, 1.25, 1.5, 2].map((r) => (
+                            <option key={r} value={r}>
+                              {r}x
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+
+                      <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                        <span className="inline-flex items-center gap-2">
+                          <Timer className="h-4 w-4" aria-hidden="true" />
+                          Sleep
+                        </span>
+                        <select
+                          className="h-9 rounded-lg border border-input bg-background px-2 py-1 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                          value={sleepPresetSeconds}
+                          onChange={(e) => {
+                            const next = Number(e.target.value);
+                            if (!Number.isFinite(next) || next <= 0) {
+                              setSleepPresetSeconds(0);
+                              setSleepRemainingSeconds(null);
+                              sleepFadingRef.current = false;
+                              writeNumberSetting(SETTINGS.sleepPresetSeconds, 0);
+                              void updateSupabaseUserSettings({ reader: { sleepPresetSeconds: 0 } });
+                              return;
+                            }
+                            setSleepPresetSeconds(next);
+                            setSleepRemainingSeconds(next);
+                            sleepFadingRef.current = false;
+                            writeNumberSetting(SETTINGS.sleepPresetSeconds, next);
+                            void updateSupabaseUserSettings({ reader: { sleepPresetSeconds: next } });
+                          }}
+                        >
+                          <option value={0}>Off</option>
+                          <option value={10 * 60}>10m</option>
+                          <option value={15 * 60}>15m</option>
+                          <option value={30 * 60}>30m</option>
+                          <option value={60 * 60}>60m</option>
+                        </select>
+                      </label>
+                    </div>
+
+                    {sleepRemainingSeconds !== null ? (
+                      <div className="text-xs text-muted-foreground">
+                        Sleep in {formatTime(sleepRemainingSeconds)}
+                      </div>
+                    ) : null}
+
+                    <div className="grid gap-1">
+                      <input
+                        type="range"
+                        min={0}
+                        max={Math.max(0, duration)}
+                        step={0.1}
+                        value={Math.min(currentTime, duration || 0)}
+                        onChange={(e) => seekTo(Number(e.target.value))}
+                        disabled={!Number.isFinite(duration) || duration <= 0}
+                      />
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>{formatTime(currentTime)}</span>
+                        <span>{formatTime(duration)}</span>
+                      </div>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
               </div>
             </>
           ) : (
@@ -1490,34 +1604,45 @@ export default function ReaderClient({
           ) : null}
 
           <div className="pt-2">
-            <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-              <List className="h-4 w-4" aria-hidden="true" />
-              Chapters
-            </div>
-            <div className="mt-2 max-h-72 overflow-auto rounded-xl bg-muted p-2">
-              <ol className="space-y-1 text-sm">
-                {chapters.map((c) => {
-                  const isCurrent = c.chapter_id === chapterId;
-                  return (
-                    <li key={c.chapter_id}>
-                      <Link
-                        className={
-                          isCurrent
-                            ? "block rounded-lg bg-accent px-2 py-1 font-medium text-accent-foreground"
-                            : "block rounded-lg px-2 py-1 text-muted-foreground underline underline-offset-4 hover:bg-accent hover:text-accent-foreground"
-                        }
-                        href={`/book/${encodeURIComponent(bookId)}/${encodeURIComponent(
-                          c.chapter_id
-                        )}`}
-                        aria-current={isCurrent ? "page" : undefined}
-                      >
-                        {c.title}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
+            <Collapsible defaultOpen>
+              <div className="flex items-center justify-between rounded-xl bg-muted px-2 py-2">
+                <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                  <List className="h-4 w-4" aria-hidden="true" />
+                  Chapters
+                </div>
+                <CollapsibleTrigger asChild>
+                  <Button type="button" variant="ghost" size="icon" className="h-7 w-7">
+                    <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                  </Button>
+                </CollapsibleTrigger>
+              </div>
+
+              <CollapsibleContent className="mt-2 max-h-72 overflow-auto rounded-xl bg-muted p-2">
+                <ol className="space-y-1 text-sm">
+                  {chapters.map((c) => {
+                    const isCurrent = c.chapter_id === chapterId;
+                    return (
+                      <li key={c.chapter_id}>
+                        <Link
+                          className={cn(
+                            "block rounded-lg px-2 py-1 underline underline-offset-4 hover:bg-accent hover:text-accent-foreground",
+                            isCurrent
+                              ? "bg-accent font-medium text-accent-foreground"
+                              : "text-muted-foreground"
+                          )}
+                          href={`/book/${encodeURIComponent(bookId)}/${encodeURIComponent(
+                            c.chapter_id
+                          )}`}
+                          aria-current={isCurrent ? "page" : undefined}
+                        >
+                          {c.title}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </CollapsibleContent>
+            </Collapsible>
           </div>
           </CardContent>
         </Card>

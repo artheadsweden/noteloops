@@ -42,10 +42,19 @@ type ReaderProgressItem = {
   updated_at: string;
 };
 
+type WaitlistEntry = {
+  id: string;
+  email: string;
+  created_at: string;
+};
+
 export default function AdminClient() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [items, setItems] = useState<InviteCodeRow[]>([]);
   const [progressItems, setProgressItems] = useState<ReaderProgressItem[]>([]);
+  const [waitlistCount, setWaitlistCount] = useState(0);
+  const [waitlistItems, setWaitlistItems] = useState<WaitlistEntry[]>([]);
+  const [waitlistStatus, setWaitlistStatus] = useState<string | null>(null);
   const [adminUsers, setAdminUsers] = useState<Array<{ id: string; email: string | null }>>([]);
   const [origin, setOrigin] = useState<string>("");
   const [code, setCode] = useState("");
@@ -169,6 +178,25 @@ export default function AdminClient() {
       setAdminUsers(sorted);
     } else {
       setAdminUsers([]);
+    }
+
+    setWaitlistStatus(null);
+    const waitlistRes = await fetch("/api/admin/waitlist?limit=200", {
+      headers: { authorization: `Bearer ${token}` }
+    });
+    const waitlistJson = (await waitlistRes.json().catch(() => null)) as null | {
+      ok?: boolean;
+      count?: number;
+      items?: WaitlistEntry[];
+      error?: string;
+    };
+    if (waitlistRes.ok && waitlistJson?.ok) {
+      setWaitlistCount(waitlistJson.count ?? 0);
+      setWaitlistItems(waitlistJson.items ?? []);
+    } else {
+      setWaitlistCount(0);
+      setWaitlistItems([]);
+      if (waitlistJson?.error) setWaitlistStatus(waitlistJson.error);
     }
   };
 
@@ -640,6 +668,42 @@ export default function AdminClient() {
             ))}
           </ul>
         )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-baseline justify-between gap-3">
+            <div className="text-sm text-muted-foreground">Waitlist</div>
+            <div className="text-xs text-muted-foreground">{waitlistCount} total</div>
+          </div>
+
+          {waitlistStatus ? (
+            <div className="mt-2 text-sm text-muted-foreground">{waitlistStatus}</div>
+          ) : null}
+
+          {waitlistItems.length === 0 ? (
+            <div className="mt-2 text-sm text-muted-foreground">No waitlist entries yet.</div>
+          ) : (
+            <div className="mt-3 overflow-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Created</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {waitlistItems.map((it) => (
+                    <TableRow key={it.id}>
+                      <TableCell className="font-medium">{it.email}</TableCell>
+                      <TableCell className="text-muted-foreground">{it.created_at}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
 

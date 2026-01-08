@@ -61,13 +61,13 @@ export default function BookResumeClient({
   return (
     <Card>
       <CardContent className="p-4">
-        <div className="text-sm text-muted-foreground">Resume reading</div>
+        <div className="text-sm text-muted-foreground">Resume (Read & Listen)</div>
         <div className="mt-1 text-sm">
           {chapterTitle}
           {timeLabel ? <span className="text-muted-foreground"> · {timeLabel}</span> : null}
         </div>
         <div className="mt-3">
-          <Button asChild variant="outline" size="sm">
+          <Button asChild className="w-full" size="sm">
             <Link href={href}>Resume</Link>
           </Button>
         </div>
