@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import AccountClient from "@/app/account/AccountClient";
+import InstallAppCard from "@/app/account/InstallAppCard";
 import ThemeToggle from "@/app/account/ThemeToggle";
 import AppFrame from "@/app/components/AppFrame";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,16 @@ export default function AccountPage() {
           </CardHeader>
           <CardContent>
             <ThemeToggle />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Install</CardTitle>
+            <CardDescription>Install this site as an app (when supported).</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <InstallAppCard />
           </CardContent>
         </Card>
       </div>
