@@ -3,15 +3,20 @@
   "status": "pending",
   "segments": [
     {
-      "pid": "p001",
+      "pid": "p000",
       "start": 0.0,
-      "end": 38.0
+      "end": 4.36
+    },
+    {
+      "pid": "p001",
+      "start": 4.36,
+      "end": 38.8
     },
     {
       "pid": "p002",
-      "start": 38.0,
+      "start": 38.8,
       "end": 47.12
     }
   ],
-  "generated_at": "2026-01-05T21:01:06+00:00"
+  "generated_at": "2026-01-07T20:11:30+00:00"
 }
