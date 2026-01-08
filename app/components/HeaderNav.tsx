@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { BookOpen, BookText, LogIn, LogOut, Shield, User } from "lucide-react";
+import { BookOpen, BookText, LogIn, LogOut, Menu, Shield, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +19,14 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from "@/components/ui/sheet";
 import { getAccessToken } from "@/services/supabase/auth";
 import { signOut } from "@/services/supabase/auth";
 import { getBrowserSupabaseClient, isSupabaseConfigured } from "@/services/supabase/browser";
@@ -118,84 +126,168 @@ export default function HeaderNav() {
 
   return (
     <TooltipProvider>
-      <nav className="flex items-center gap-1">
-      <Button
-        asChild
-        variant="ghost"
-        size="sm"
-        className={
-          isLibraryActive
-            ? "bg-muted text-foreground shadow-[var(--shadow-sm)]"
-            : "text-muted-foreground"
-        }
-      >
-        <Link href="/dashboard">
-          <BookOpen className="h-4 w-4" aria-hidden="true" />
-          <span>Library</span>
-        </Link>
-      </Button>
-
-      <Button
-        asChild
-        variant="ghost"
-        size="sm"
-        className={
-          isGuideActive
-            ? "bg-muted text-foreground shadow-[var(--shadow-sm)]"
-            : "text-muted-foreground"
-        }
-      >
-        <Link href="/guide">
-          <BookText className="h-4 w-4" aria-hidden="true" />
-          <span>Guide</span>
-        </Link>
-      </Button>
-
-      {isAdmin ? (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              asChild
-              variant="ghost"
-              size="icon"
-              className={
-                isAdminActive
-                  ? "bg-muted text-foreground shadow-[var(--shadow-sm)]"
-                  : "text-muted-foreground"
-              }
-              aria-label="Admin"
-            >
-              <Link href="/admin">
-                <Shield className="h-4 w-4" aria-hidden="true" />
-              </Link>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">Admin</TooltipContent>
-        </Tooltip>
-      ) : null}
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button type="button" variant="ghost" size="icon" aria-label="Account menu" title="Account">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-muted text-xs font-semibold text-foreground">
-              {userEmail ? userEmail.slice(0, 1).toUpperCase() : <User className="h-4 w-4" aria-hidden="true" />}
-            </span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem asChild>
-            <Link href="/account">
-              <User className="h-4 w-4" aria-hidden="true" />
-              Account
+      <nav className="flex items-center">
+        <div className="hidden items-center gap-1 sm:flex">
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className={
+              isLibraryActive
+                ? "bg-muted text-foreground shadow-[var(--shadow-sm)]"
+                : "text-muted-foreground"
+            }
+          >
+            <Link href="/dashboard">
+              <BookOpen className="h-4 w-4" aria-hidden="true" />
+              <span>Library</span>
             </Link>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => void onSignOut()}>
-            <LogOut className="h-4 w-4" aria-hidden="true" />
-            Sign out
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </Button>
+
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className={
+              isGuideActive
+                ? "bg-muted text-foreground shadow-[var(--shadow-sm)]"
+                : "text-muted-foreground"
+            }
+          >
+            <Link href="/guide">
+              <BookText className="h-4 w-4" aria-hidden="true" />
+              <span>Guide</span>
+            </Link>
+          </Button>
+
+          {isAdmin ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="icon"
+                  className={
+                    isAdminActive
+                      ? "bg-muted text-foreground shadow-[var(--shadow-sm)]"
+                      : "text-muted-foreground"
+                  }
+                  aria-label="Admin"
+                >
+                  <Link href="/admin">
+                    <Shield className="h-4 w-4" aria-hidden="true" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Admin</TooltipContent>
+            </Tooltip>
+          ) : null}
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Account menu"
+                title="Account"
+              >
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-muted text-xs font-semibold text-foreground">
+                  {userEmail ? (
+                    userEmail.slice(0, 1).toUpperCase()
+                  ) : (
+                    <User className="h-4 w-4" aria-hidden="true" />
+                  )}
+                </span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href="/account">
+                  <User className="h-4 w-4" aria-hidden="true" />
+                  Account
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => void onSignOut()}>
+                <LogOut className="h-4 w-4" aria-hidden="true" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        <div className="sm:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button type="button" variant="ghost" size="icon" aria-label="Open menu">
+                <Menu className="h-5 w-5" aria-hidden="true" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="p-4">
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+
+              <div className="mt-4 grid gap-2">
+                <SheetClose asChild>
+                  <Button
+                    asChild
+                    variant={isLibraryActive ? "secondary" : "ghost"}
+                    className="w-full justify-start"
+                  >
+                    <Link href="/dashboard">
+                      <BookOpen className="h-4 w-4" aria-hidden="true" />
+                      <span>Library</span>
+                    </Link>
+                  </Button>
+                </SheetClose>
+
+                <SheetClose asChild>
+                  <Button
+                    asChild
+                    variant={isGuideActive ? "secondary" : "ghost"}
+                    className="w-full justify-start"
+                  >
+                    <Link href="/guide">
+                      <BookText className="h-4 w-4" aria-hidden="true" />
+                      <span>Guide</span>
+                    </Link>
+                  </Button>
+                </SheetClose>
+
+                {isAdmin ? (
+                  <SheetClose asChild>
+                    <Button
+                      asChild
+                      variant={isAdminActive ? "secondary" : "ghost"}
+                      className="w-full justify-start"
+                    >
+                      <Link href="/admin">
+                        <Shield className="h-4 w-4" aria-hidden="true" />
+                        <span>Admin</span>
+                      </Link>
+                    </Button>
+                  </SheetClose>
+                ) : null}
+
+                <SheetClose asChild>
+                  <Button asChild variant="ghost" className="w-full justify-start">
+                    <Link href="/account">
+                      <User className="h-4 w-4" aria-hidden="true" />
+                      <span>Account</span>
+                    </Link>
+                  </Button>
+                </SheetClose>
+
+                <Button type="button" variant="ghost" className="w-full justify-start" onClick={() => void onSignOut()}>
+                  <LogOut className="h-4 w-4" aria-hidden="true" />
+                  <span>Sign out</span>
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </nav>
     </TooltipProvider>
   );
