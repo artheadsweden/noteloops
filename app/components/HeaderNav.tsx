@@ -94,6 +94,7 @@ export default function HeaderNav() {
   }, []);
 
   const isLibraryActive = pathname === "/dashboard" || pathname.startsWith("/book/");
+  const isGuideActive = pathname === "/guide" || pathname.startsWith("/guide/");
   const isAdminActive = pathname === "/admin" || pathname.startsWith("/admin/");
 
   const onSignOut = async () => {
@@ -131,6 +132,21 @@ export default function HeaderNav() {
         <Link href="/dashboard">
           <BookOpen className="h-4 w-4" aria-hidden="true" />
           <span>Library</span>
+        </Link>
+      </Button>
+
+      <Button
+        asChild
+        variant="ghost"
+        size="sm"
+        className={
+          isGuideActive
+            ? "bg-muted text-foreground shadow-[var(--shadow-sm)]"
+            : "text-muted-foreground"
+        }
+      >
+        <Link href="/guide">
+          <span>Guide</span>
         </Link>
       </Button>
 
