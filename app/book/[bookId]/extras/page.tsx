@@ -8,6 +8,7 @@ import AppFrame from "@/app/components/AppFrame";
 import { titleFromSlug } from "@/lib/display";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default async function ExtrasPage({
   params
@@ -31,6 +32,10 @@ export default async function ExtrasPage({
     ? await getChapterContent(bookId, aboutId).catch(() => null)
     : null;
 
+  const hasRecordings = Boolean(recordings && recordings.length > 0);
+  const hasTimeline = Boolean(timeline && timeline.length > 0);
+  const defaultTab = hasRecordings ? "audio" : hasTimeline ? "timeline" : "about";
+
   return (
     <AppFrame>
       <div className="text-sm text-muted-foreground">
@@ -52,15 +57,21 @@ export default async function ExtrasPage({
         Additional material for <span className="text-foreground">{titleFromSlug(manifest.book_id)}</span>
       </p>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
-        <div className="grid gap-6">
-          {recordings && recordings.length > 0 ? (
+      <Tabs defaultValue={defaultTab} className="mt-6 space-y-4">
+        <TabsList className="h-auto w-full flex-wrap justify-start">
+          {hasRecordings ? <TabsTrigger value="audio">Audio</TabsTrigger> : null}
+          <TabsTrigger value="timeline">Timeline</TabsTrigger>
+          <TabsTrigger value="about">About</TabsTrigger>
+        </TabsList>
+
+        {hasRecordings ? (
+          <TabsContent value="audio">
             <Card>
               <CardHeader>
                 <CardTitle>Audio</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {recordings.map((rec) => (
+                {recordings?.map((rec) => (
                   <div key={rec.id} className="rounded-lg border border-border/60 bg-card p-4">
                     <div className="text-sm font-medium text-foreground">{rec.title}</div>
                     <div className="mt-1 text-xs text-muted-foreground">
@@ -89,8 +100,39 @@ export default async function ExtrasPage({
                 ))}
               </CardContent>
             </Card>
-          ) : null}
+          </TabsContent>
+        ) : null}
 
+        <TabsContent value="timeline">
+          <Card>
+            <CardHeader>
+              <CardTitle>Timeline</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Real-world events that are covered or referenced in the book.
+              </p>
+            </CardHeader>
+            <CardContent>
+              {timeline && timeline.length > 0 ? (
+                <ol className="mt-4 space-y-3 border-l pl-4">
+                  {timeline.map((ev, idx) => (
+                    <li key={`${idx}-${ev.title}`} className="relative">
+                      <span className="absolute -left-[9px] top-1 h-3 w-3 rounded-full border bg-background" />
+                      <div className="text-sm font-medium">{ev.title}</div>
+                      {ev.date ? <div className="text-xs text-muted-foreground">{ev.date}</div> : null}
+                      {ev.description ? (
+                        <div className="mt-1 text-sm text-muted-foreground">{ev.description}</div>
+                      ) : null}
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="mt-3 text-sm text-muted-foreground">No timeline entries yet.</p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="about">
           <Card>
             <CardHeader>
               <CardTitle>About the Author</CardTitle>
@@ -108,36 +150,8 @@ export default async function ExtrasPage({
               )}
             </CardContent>
           </Card>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Timeline</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Reads from <span className="font-medium">/public/input/{manifest.book_id}/timeline.json</span>.
-            </p>
-          </CardHeader>
-          <CardContent>
-
-          {timeline && timeline.length > 0 ? (
-            <ol className="mt-4 space-y-3 border-l pl-4">
-              {timeline.map((ev, idx) => (
-                <li key={`${idx}-${ev.title}`} className="relative">
-                  <span className="absolute -left-[9px] top-1 h-3 w-3 rounded-full border bg-background" />
-                  <div className="text-sm font-medium">{ev.title}</div>
-                  {ev.date ? <div className="text-xs text-muted-foreground">{ev.date}</div> : null}
-                  {ev.description ? (
-                    <div className="mt-1 text-sm text-muted-foreground">{ev.description}</div>
-                  ) : null}
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <p className="mt-3 text-sm text-muted-foreground">No timeline metadata found.</p>
-          )}
-          </CardContent>
-        </Card>
-      </div>
+        </TabsContent>
+      </Tabs>
     </AppFrame>
   );
 }
