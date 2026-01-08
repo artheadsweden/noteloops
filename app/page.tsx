@@ -19,7 +19,7 @@ export default async function HomePage() {
   return (
     <AppFrame>
       <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
-        <div className="space-y-8">
+        <div className="order-2 space-y-8 lg:order-1">
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground shadow-[var(--shadow-sm)]">
               Reading + audio workspace
@@ -33,7 +33,7 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="hidden gap-3 sm:grid sm:grid-cols-3">
             {[
               { label: "Sync fidelity", value: "Paragraph-accurate" },
               { label: "Reader focus", value: "Distraction-free UI" },
@@ -52,7 +52,7 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="order-1 space-y-6 lg:order-2">
           <div
             id="invite"
             className="rounded-2xl border border-border/60 bg-background/90 p-6 shadow-[var(--shadow-lg)] backdrop-blur"
@@ -60,7 +60,7 @@ export default async function HomePage() {
             <div className="space-y-2">
               <h2 className="text-lg font-semibold">Enter your invite code</h2>
               <p className="text-sm text-muted-foreground">
-                Invited authors only. Continue to create an account or sign in.
+                Invited authors only. Continue to create an account.
               </p>
             </div>
             <div className="mt-5">
@@ -83,52 +83,54 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <SectionCard
-            title="How it works"
-            description="Read, listen, and leave feedback in context."
-            className="border-border/60 bg-background/80 shadow-[var(--shadow-md)] backdrop-blur"
-            contentClassName="space-y-4"
-          >
-            <ul className="space-y-3">
-              <li className="flex gap-3">
-                <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground shadow-[var(--shadow-sm)]">
-                  <BookOpen className="h-4 w-4" aria-hidden="true" />
-                </div>
-                <div>
-                  <div className="text-sm font-medium">Read</div>
-                  <div className="text-sm text-muted-foreground">
-                    Clean chapters with progress saved automatically.
+          <div className="hidden md:block">
+            <SectionCard
+              title="How it works"
+              description="Read, listen, and leave feedback in context."
+              className="border-border/60 bg-background/80 shadow-[var(--shadow-md)] backdrop-blur"
+              contentClassName="space-y-4"
+            >
+              <ul className="space-y-3">
+                <li className="flex gap-3">
+                  <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground shadow-[var(--shadow-sm)]">
+                    <BookOpen className="h-4 w-4" aria-hidden="true" />
                   </div>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground shadow-[var(--shadow-sm)]">
-                  <Headphones className="h-4 w-4" aria-hidden="true" />
-                </div>
-                <div>
-                  <div className="text-sm font-medium">Listen</div>
-                  <div className="text-sm text-muted-foreground">
-                    Audio stays aligned to paragraphs as you play.
+                  <div>
+                    <div className="text-sm font-medium">Read</div>
+                    <div className="text-sm text-muted-foreground">
+                      Clean chapters with progress saved automatically.
+                    </div>
                   </div>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground shadow-[var(--shadow-sm)]">
-                  <MessageSquare className="h-4 w-4" aria-hidden="true" />
-                </div>
-                <div>
-                  <div className="text-sm font-medium">Comment</div>
-                  <div className="text-sm text-muted-foreground">
-                    Leave feedback on the exact paragraph that triggered it.
+                </li>
+                <li className="flex gap-3">
+                  <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground shadow-[var(--shadow-sm)]">
+                    <Headphones className="h-4 w-4" aria-hidden="true" />
                   </div>
-                </div>
-              </li>
-            </ul>
-          </SectionCard>
+                  <div>
+                    <div className="text-sm font-medium">Listen</div>
+                    <div className="text-sm text-muted-foreground">
+                      Audio stays aligned to paragraphs as you play.
+                    </div>
+                  </div>
+                </li>
+                <li className="flex gap-3">
+                  <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground shadow-[var(--shadow-sm)]">
+                    <MessageSquare className="h-4 w-4" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium">Comment</div>
+                    <div className="text-sm text-muted-foreground">
+                      Leave feedback on the exact paragraph that triggered it.
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </SectionCard>
+          </div>
         </div>
       </div>
 
-      <div className="mt-12 grid gap-6 md:grid-cols-3">
+      <div className="mt-12 hidden gap-6 md:grid md:grid-cols-3">
         {[
           { title: "Read", description: "Clean chapters with progress.", src: "/landing/read.png" },
           { title: "Listen", description: "Audio that follows the text.", src: "/landing/listen.png" },

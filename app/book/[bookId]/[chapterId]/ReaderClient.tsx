@@ -316,7 +316,7 @@ export default function ReaderClient({
   const [duration, setDuration] = useState(0);
   const [playbackRate, setPlaybackRate] = useState(1);
 
-  const [listenMode, setListenMode] = useState(false);
+  const [listenMode, setListenMode] = useState(true);
   const [listenChaptersOpen, setListenChaptersOpen] = useState(false);
   const [listenSettingsOpen, setListenSettingsOpen] = useState(false);
 
@@ -384,7 +384,7 @@ export default function ReaderClient({
     setAutoScrollToTopEnabled(readBoolSetting(SETTINGS.autoScroll, true));
     setHighlightParagraphEnabled(readBoolSetting(SETTINGS.highlightParagraph, true));
     setHighlightWordEnabled(readBoolSetting(SETTINGS.highlightWord, true));
-    setListenMode(readBoolSetting(SETTINGS.listenMode, false));
+    setListenMode(readBoolSetting(SETTINGS.listenMode, true));
   }, [readBoolSetting, SETTINGS]);
 
   const [sleepPresetSeconds, setSleepPresetSeconds] = useState(0);
@@ -1402,7 +1402,7 @@ export default function ReaderClient({
         )}
       >
         {!listenMode ? (
-          <Card className="lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
+          <Card className="order-2 lg:order-1 lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
             <CardContent className="space-y-3 p-4">
             <div className="flex items-center justify-between">
               <div className="text-sm font-medium">Audio</div>
@@ -1706,7 +1706,7 @@ export default function ReaderClient({
           </Card>
         ) : null}
 
-        <section className={cn(listenMode ? "pb-28" : null)}>
+        <section className={cn(listenMode ? "pb-28" : "order-1 lg:order-2")}>
           <div
             ref={containerRef}
             className="reader-prose prose prose-neutral dark:prose-invert mx-auto w-full max-w-[78ch] rounded-xl border bg-card p-4 leading-relaxed sm:p-6 lg:min-h-[calc(100vh-3rem)]"
@@ -1991,6 +1991,21 @@ export default function ReaderClient({
                       Resume
                     </Button>
                   ) : null}
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      setDrawer({ mode: "chapter" });
+                      setListenSettingsOpen(false);
+                    }}
+                  >
+                    <MessageSquare className="h-4 w-4" aria-hidden="true" />
+                    Chapter feedback
+                  </Button>
+
+                  <div className="text-sm text-muted-foreground">Tap any paragraph to leave paragraph feedback.</div>
                 </div>
               </div>
             </SheetContent>

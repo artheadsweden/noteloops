@@ -35,7 +35,7 @@ export default function InviteClient() {
         return;
       }
 
-      window.location.href = "/login";
+      window.location.href = "/signup";
     } finally {
       setLoading(false);
     }

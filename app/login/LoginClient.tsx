@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 
 import {
   getAccessToken,
   signInWithPassword,
   signOut,
-  signUp
 } from "@/services/supabase/auth";
 import { isSupabaseConfigured } from "@/services/supabase/browser";
 import { Button } from "@/components/ui/button";
@@ -21,17 +21,14 @@ export default function LoginClient() {
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [signedIn, setSignedIn] = useState(false);
-  const [inviteOk, setInviteOk] = useState(false);
 
   useEffect(() => {
     fetch("/api/gate")
       .then((r) => r.json())
       .then((j: { inviteOk?: boolean; sessionOk?: boolean } | null) => {
-        setInviteOk(Boolean(j?.inviteOk));
         setSignedIn(Boolean(j?.sessionOk));
       })
       .catch(() => {
-        setInviteOk(false);
         setSignedIn(false);
       });
 
@@ -104,34 +101,6 @@ export default function LoginClient() {
     window.location.href = "/dashboard";
   };
 
-  const onSignUp = async () => {
-    if (!inviteOk) {
-      setStatus("You need an invite code before creating an account.");
-      window.location.href = "/#invite";
-      return;
-    }
-
-    setStatus(null);
-    const { error } = await signUp(email, password);
-    if (error) {
-      setStatus(error.message);
-      return;
-    }
-
-    // If email confirmation is disabled, you may have a session immediately.
-    const token = await getAccessToken();
-    if (token) {
-      await fetch("/api/auth/session", {
-        method: "POST",
-        headers: { authorization: `Bearer ${token}` }
-      }).catch(() => null);
-      window.location.href = "/dashboard";
-      return;
-    }
-
-    setStatus("Signed up. Check email if confirmation is required.");
-  };
-
   const onSignOut = async () => {
     setStatus(null);
     const { error } = await signOut();
@@ -177,8 +146,8 @@ export default function LoginClient() {
         <Button type="submit">
           Sign in
         </Button>
-        <Button type="button" variant="secondary" onClick={onSignUp} disabled={!inviteOk}>
-          Sign up
+        <Button asChild type="button" variant="secondary">
+          <Link href="/signup">Create account</Link>
         </Button>
         {signedIn ? (
           <Button type="button" variant="outline" onClick={onSignOut}>
@@ -186,12 +155,6 @@ export default function LoginClient() {
           </Button>
         ) : null}
       </div>
-
-      {!inviteOk ? (
-        <div className="text-sm text-muted-foreground">
-          New here? Enter an invite code on the landing page to enable sign up.
-        </div>
-      ) : null}
 
       {status ? <div className="text-sm text-muted-foreground">{status}</div> : null}
     </form>

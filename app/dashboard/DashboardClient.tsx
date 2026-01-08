@@ -258,6 +258,11 @@ export default function DashboardClient({ manifests }: { manifests: BookManifest
                           ) : null}
                         </DropdownMenuContent>
                       </DropdownMenu>
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        Download this book as {m.downloads?.pdf ? "PDF" : null}
+                        {m.downloads?.pdf && m.downloads?.epub ? " or " : null}
+                        {m.downloads?.epub ? "EPUB" : null}.
+                      </div>
                     </div>
                   ) : null}
                 </CardContent>

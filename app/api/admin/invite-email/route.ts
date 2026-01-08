@@ -137,7 +137,7 @@ export async function POST(req: Request) {
   if (upsertErr) return NextResponse.json({ ok: false, error: upsertErr.message }, { status: 500 });
 
   const base = getBaseUrl(req);
-  const inviteLink = base ? `${base}/?code=${encodeURIComponent(code)}` : `/?code=${encodeURIComponent(code)}`;
+  const inviteLink = base ? `${base}/signup?code=${encodeURIComponent(code)}` : `/signup?code=${encodeURIComponent(code)}`;
 
   const tpl = await getInviteTemplate(supabase);
   const subject = tpl.subject;

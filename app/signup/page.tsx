@@ -1,24 +1,27 @@
 import Link from "next/link";
+import { Suspense } from "react";
 
-import LoginClient from "@/app/login/LoginClient";
+import SignupClient from "@/app/signup/SignupClient";
 import AppFrame from "@/app/components/AppFrame";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function LoginPage() {
+export default function SignupPage() {
   return (
     <AppFrame>
       <Button asChild variant="link" className="px-0">
-        <Link href="/">Back</Link>
+        <Link href="/login">Already have an account? Sign in</Link>
       </Button>
 
       <Card className="mt-6 max-w-md">
         <CardHeader>
-          <CardTitle>Sign in</CardTitle>
-          <p className="text-sm text-muted-foreground">Used for syncing progress and feedback.</p>
+          <CardTitle>Create your account</CardTitle>
+          <p className="text-sm text-muted-foreground">Invite-only signup.</p>
         </CardHeader>
         <CardContent>
-          <LoginClient />
+          <Suspense fallback={<div className="text-sm text-muted-foreground">Loading…</div>}>
+            <SignupClient />
+          </Suspense>
         </CardContent>
       </Card>
     </AppFrame>

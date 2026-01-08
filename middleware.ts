@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 // App pages require a Supabase login (tracked via httpOnly sb_ok cookie).
 // Invites are used to *create* accounts (sign up), not to browse once logged in.
-const LOGIN_REQUIRED_PREFIXES = ["/dashboard", "/book", "/admin", "/account"];
+const LOGIN_REQUIRED_PREFIXES = ["/dashboard", "/book", "/admin", "/account", "/guide"];
 const LOGIN_PREFIXES = ["/login"];
 const PUBLIC_PREFIXES = [
   "/_next",
