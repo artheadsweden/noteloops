@@ -24,6 +24,7 @@ const ExtraRecordingSchema = z.object({
   mentioned_in_chapter_id: z.string().min(1).optional(),
   image: z.string().min(1).optional(),
   image_alt: z.string().min(1).optional(),
+  photo_credit: z.string().min(1).optional(),
   audio_mp3: z.string().url(),
   description: z.string().min(1).optional()
 });

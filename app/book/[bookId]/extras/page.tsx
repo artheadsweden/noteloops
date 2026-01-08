@@ -99,6 +99,12 @@ export default async function ExtrasPage({
                       </div>
                     ) : null}
 
+                    {rec.image && rec.photo_credit ? (
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        Photo: <span className="font-medium text-foreground">{rec.photo_credit}</span>
+                      </div>
+                    ) : null}
+
                     {rec.mentioned_in_chapter_id ? (
                       <div className="mt-3">
                         <Button asChild variant="outline" size="sm">
