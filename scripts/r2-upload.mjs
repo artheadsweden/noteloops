@@ -15,6 +15,14 @@ function requiredEnv(name) {
   return v;
 }
 
+function getEnv(...names) {
+  for (const name of names) {
+    const v = process.env[name];
+    if (v) return v;
+  }
+  return null;
+}
+
 const file = getArg("file");
 const key = getArg("key");
 const contentType = getArg("contentType") ?? "audio/mpeg";
@@ -29,7 +37,8 @@ if (!file || !key) {
 const accountId = requiredEnv("R2_ACCOUNT_ID");
 const accessKeyId = requiredEnv("R2_ACCESS_KEY_ID");
 const secretAccessKey = requiredEnv("R2_SECRET_ACCESS_KEY");
-const bucket = requiredEnv("R2_BUCKET");
+const bucket = getEnv("R2_BUCKET", "R2_BUCKET_NAME");
+if (!bucket) throw new Error("Missing env var R2_BUCKET (or R2_BUCKET_NAME)");
 
 const endpoint = `https://${accountId}.r2.cloudflarestorage.com`;
 
@@ -55,7 +64,7 @@ await client.send(
   })
 );
 
-const publicBase = process.env.R2_PUBLIC_BASE_URL;
+const publicBase = getEnv("R2_PUBLIC_BASE_URL", "R2_PUBLIC_URL");
 if (publicBase) {
   const url = `${publicBase.replace(/\/$/, "")}/${key.replace(/^\//, "")}`;
   console.log(url);
