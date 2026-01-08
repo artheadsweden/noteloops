@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { getBookManifest } from "@/services/input/books";
 import { getChapterContent } from "@/services/input/chapters";
-import { findAboutAuthorChapterId, getBookTimeline } from "@/services/input/extras";
+import { findAboutAuthorChapterId, getBookExtraRecordings, getBookTimeline } from "@/services/input/extras";
 import AppFrame from "@/app/components/AppFrame";
 import { titleFromSlug } from "@/lib/display";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ export default async function ExtrasPage({
   }
 
   const timeline = await getBookTimeline(bookId).catch(() => null);
+  const recordings = await getBookExtraRecordings(bookId).catch(() => null);
 
   const aboutId = await findAboutAuthorChapterId(bookId);
   const about = aboutId
@@ -52,23 +53,62 @@ export default async function ExtrasPage({
       </p>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
-        <Card>
-          <CardHeader>
-            <CardTitle>About the Author</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {about ? (
-              <div
-                className="prose mt-0 max-w-none"
-                dangerouslySetInnerHTML={{ __html: about.html }}
-              />
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No “About the Author” chapter found in this book.
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        <div className="grid gap-6">
+          {recordings && recordings.length > 0 ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Audio</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {recordings.map((rec) => (
+                  <div key={rec.id} className="rounded-lg border border-border/60 bg-card p-4">
+                    <div className="text-sm font-medium text-foreground">{rec.title}</div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      {[rec.date, rec.location].filter(Boolean).join(" · ")}
+                    </div>
+                    {rec.description ? (
+                      <p className="mt-2 text-sm text-muted-foreground">{rec.description}</p>
+                    ) : null}
+
+                    {rec.mentioned_in_chapter_id ? (
+                      <div className="mt-3">
+                        <Button asChild variant="outline" size="sm">
+                          <Link
+                            href={`/book/${encodeURIComponent(manifest.book_id)}/${encodeURIComponent(rec.mentioned_in_chapter_id)}`}
+                          >
+                            Open {rec.mentioned_in_chapter_id}
+                          </Link>
+                        </Button>
+                      </div>
+                    ) : null}
+
+                    <div className="mt-4">
+                      <audio className="w-full" controls preload="none" src={rec.audio_mp3} />
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          ) : null}
+
+          <Card>
+            <CardHeader>
+              <CardTitle>About the Author</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {about ? (
+                <div
+                  className="prose mt-0 max-w-none"
+                  dangerouslySetInnerHTML={{ __html: about.html }}
+                />
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No “About the Author” chapter found in this book.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         <Card>
           <CardHeader>

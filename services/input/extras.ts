@@ -16,7 +16,22 @@ const TimelineEventSchema = z.object({
 
 const TimelineFileSchema = z.array(TimelineEventSchema);
 
+const ExtraRecordingSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  date: z.string().min(1).optional(),
+  location: z.string().min(1).optional(),
+  mentioned_in_chapter_id: z.string().min(1).optional(),
+  audio_mp3: z.string().url(),
+  description: z.string().min(1).optional()
+});
+
+const ExtrasFileSchema = z.object({
+  recordings: z.array(ExtraRecordingSchema).optional()
+});
+
 export type TimelineEvent = z.infer<typeof TimelineEventSchema>;
+export type ExtraRecording = z.infer<typeof ExtraRecordingSchema>;
 
 async function fileExists(filePath: string): Promise<boolean> {
   try {
@@ -61,4 +76,15 @@ export async function getBookTimeline(bookId: string): Promise<TimelineEvent[] |
   const raw = await fs.readFile(timelinePath, "utf-8");
   const parsed = JSON.parse(raw) as unknown;
   return TimelineFileSchema.parse(parsed);
+}
+
+export async function getBookExtraRecordings(bookId: string): Promise<ExtraRecording[] | null> {
+  // Optional metadata file: /public/input/[bookId]/extras.json
+  const extrasPath = resolveBookRootFile(bookId, "extras.json");
+  if (!(await fileExists(extrasPath))) return null;
+
+  const raw = await fs.readFile(extrasPath, "utf-8");
+  const parsed = JSON.parse(raw) as unknown;
+  const extras = ExtrasFileSchema.parse(parsed);
+  return extras.recordings && extras.recordings.length > 0 ? extras.recordings : null;
 }
