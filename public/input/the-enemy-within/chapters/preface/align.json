@@ -10,48 +10,2840 @@
     {
       "pid": "p001",
       "start": 2.44,
-      "end": 4.6
+      "end": 5.28
     },
     {
       "pid": "p002",
       "start": 7.069999999999999,
-      "end": 33.52
+      "end": 37.84
     },
     {
       "pid": "p003",
       "start": 38.5,
-      "end": 61.42
+      "end": 65.66
     },
     {
       "pid": "p004",
       "start": 66.8,
-      "end": 80.74
+      "end": 84.02
     },
     {
       "pid": "p005",
       "start": 85.66,
-      "end": 89.12
+      "end": 89.6
     },
     {
       "pid": "p006",
       "start": 90.58,
-      "end": 102.56
+      "end": 105.48
     },
     {
       "pid": "p007",
       "start": 106.24,
-      "end": 118.92
+      "end": 127.2
     },
     {
       "pid": "p008",
+      "start": 127.2,
+      "end": 130.7
+    },
+    {
+      "pid": "p009",
+      "start": 130.7,
+      "end": 130.7
+    }
+  ],
+  "words": [
+    {
+      "pid": "p000",
+      "widx": 0,
+      "text": "Preface",
+      "start_char": 0,
+      "end_char": 7,
+      "start": 0.0,
+      "end": 1.04
+    },
+    {
+      "pid": "p001",
+      "widx": 0,
+      "text": "There",
+      "start_char": 0,
+      "end_char": 5,
+      "start": 2.44,
+      "end": 3.06
+    },
+    {
+      "pid": "p001",
+      "widx": 1,
+      "text": "are",
+      "start_char": 6,
+      "end_char": 9,
+      "start": 3.06,
+      "end": 3.16
+    },
+    {
+      "pid": "p001",
+      "widx": 2,
+      "text": "places",
+      "start_char": 10,
+      "end_char": 16,
+      "start": 3.16,
+      "end": 3.56
+    },
+    {
+      "pid": "p001",
+      "widx": 3,
+      "text": "in",
+      "start_char": 17,
+      "end_char": 19,
+      "start": 3.56,
+      "end": 3.78
+    },
+    {
+      "pid": "p001",
+      "widx": 4,
+      "text": "this",
+      "start_char": 20,
+      "end_char": 24,
+      "start": 3.78,
+      "end": 3.98
+    },
+    {
+      "pid": "p001",
+      "widx": 5,
+      "text": "novel",
+      "start_char": 25,
+      "end_char": 30,
+      "start": 3.98,
+      "end": 4.24
+    },
+    {
+      "pid": "p001",
+      "widx": 6,
+      "text": "that",
+      "start_char": 31,
+      "end_char": 35,
+      "start": 4.24,
+      "end": 4.48
+    },
+    {
+      "pid": "p001",
+      "widx": 7,
+      "text": "are",
+      "start_char": 36,
+      "end_char": 39,
+      "start": 4.48,
+      "end": 4.6
+    },
+    {
+      "pid": "p001",
+      "widx": 8,
+      "text": "not",
+      "start_char": 40,
+      "end_char": 43,
+      "start": 4.6,
+      "end": 4.76
+    },
+    {
+      "pid": "p001",
+      "widx": 9,
+      "text": "mine",
+      "start_char": 44,
+      "end_char": 48,
+      "start": 4.76,
+      "end": 5.28
+    },
+    {
+      "pid": "p002",
+      "widx": 0,
+      "text": "I",
+      "start_char": 0,
+      "end_char": 1,
+      "start": 7.069999999999999,
+      "end": 7.38
+    },
+    {
+      "pid": "p002",
+      "widx": 1,
+      "text": "have",
+      "start_char": 2,
+      "end_char": 6,
+      "start": 7.38,
+      "end": 7.54
+    },
+    {
+      "pid": "p002",
+      "widx": 2,
+      "text": "borrowed",
+      "start_char": 7,
+      "end_char": 15,
+      "start": 7.54,
+      "end": 7.9
+    },
+    {
+      "pid": "p002",
+      "widx": 3,
+      "text": "names",
+      "start_char": 16,
+      "end_char": 21,
+      "start": 7.9,
+      "end": 8.36
+    },
+    {
+      "pid": "p002",
+      "widx": 4,
+      "text": "towns",
+      "start_char": 22,
+      "end_char": 27,
+      "start": 9.24,
+      "end": 9.54
+    },
+    {
+      "pid": "p002",
+      "widx": 5,
+      "text": "and",
+      "start_char": 28,
+      "end_char": 31,
+      "start": 9.54,
+      "end": 9.82
+    },
+    {
+      "pid": "p002",
+      "widx": 6,
+      "text": "villages",
+      "start_char": 32,
+      "end_char": 40,
+      "start": 9.82,
+      "end": 10.12
+    },
+    {
+      "pid": "p002",
+      "widx": 7,
+      "text": "and",
+      "start_char": 41,
+      "end_char": 44,
+      "start": 10.12,
+      "end": 10.42
+    },
+    {
+      "pid": "p002",
+      "widx": 8,
+      "text": "streets",
+      "start_char": 45,
+      "end_char": 52,
+      "start": 10.42,
+      "end": 10.76
+    },
+    {
+      "pid": "p002",
+      "widx": 9,
+      "text": "that",
+      "start_char": 53,
+      "end_char": 57,
+      "start": 10.76,
+      "end": 11.04
+    },
+    {
+      "pid": "p002",
+      "widx": 10,
+      "text": "hold",
+      "start_char": 58,
+      "end_char": 62,
+      "start": 11.04,
+      "end": 11.28
+    },
+    {
+      "pid": "p002",
+      "widx": 11,
+      "text": "real",
+      "start_char": 63,
+      "end_char": 67,
+      "start": 11.28,
+      "end": 11.62
+    },
+    {
+      "pid": "p002",
+      "widx": 12,
+      "text": "lives",
+      "start_char": 68,
+      "end_char": 73,
+      "start": 11.62,
+      "end": 12.2
+    },
+    {
+      "pid": "p002",
+      "widx": 13,
+      "text": "real",
+      "start_char": 75,
+      "end_char": 79,
+      "start": 12.7,
+      "end": 12.92
+    },
+    {
+      "pid": "p002",
+      "widx": 14,
+      "text": "memories",
+      "start_char": 80,
+      "end_char": 88,
+      "start": 12.92,
+      "end": 13.42
+    },
+    {
+      "pid": "p002",
+      "widx": 15,
+      "text": "and",
+      "start_char": 90,
+      "end_char": 93,
+      "start": 14.04,
+      "end": 14.24
+    },
+    {
+      "pid": "p002",
+      "widx": 16,
+      "text": "real",
+      "start_char": 94,
+      "end_char": 98,
+      "start": 14.24,
+      "end": 14.52
+    },
+    {
+      "pid": "p002",
+      "widx": 17,
+      "text": "griefs",
+      "start_char": 99,
+      "end_char": 105,
+      "start": 14.52,
+      "end": 15.16
+    },
+    {
+      "pid": "p002",
+      "widx": 18,
+      "text": "and",
+      "start_char": 106,
+      "end_char": 109,
+      "start": 15.16,
+      "end": 15.26
+    },
+    {
+      "pid": "p002",
+      "widx": 19,
+      "text": "joys",
+      "start_char": 110,
+      "end_char": 114,
+      "start": 15.26,
+      "end": 15.9
+    },
+    {
+      "pid": "p002",
+      "widx": 20,
+      "text": "If",
+      "start_char": 116,
+      "end_char": 118,
+      "start": 16.52,
+      "end": 16.9
+    },
+    {
+      "pid": "p002",
+      "widx": 21,
+      "text": "in",
+      "start_char": 120,
+      "end_char": 122,
+      "start": 16.9,
+      "end": 17.12
+    },
+    {
+      "pid": "p002",
+      "widx": 22,
+      "text": "doing",
+      "start_char": 123,
+      "end_char": 128,
+      "start": 17.12,
+      "end": 17.38
+    },
+    {
+      "pid": "p002",
+      "widx": 23,
+      "text": "so",
+      "start_char": 129,
+      "end_char": 131,
+      "start": 17.38,
+      "end": 17.78
+    },
+    {
+      "pid": "p002",
+      "widx": 24,
+      "text": "I",
+      "start_char": 133,
+      "end_char": 134,
+      "start": 18.18,
+      "end": 18.4
+    },
+    {
+      "pid": "p002",
+      "widx": 25,
+      "text": "have",
+      "start_char": 135,
+      "end_char": 139,
+      "start": 18.4,
+      "end": 18.56
+    },
+    {
+      "pid": "p002",
+      "widx": 26,
+      "text": "caused",
+      "start_char": 140,
+      "end_char": 146,
+      "start": 18.56,
+      "end": 18.9
+    },
+    {
+      "pid": "p002",
+      "widx": 27,
+      "text": "offence",
+      "start_char": 147,
+      "end_char": 154,
+      "start": 18.9,
+      "end": 19.3
+    },
+    {
+      "pid": "p002",
+      "widx": 28,
+      "text": "or",
+      "start_char": 155,
+      "end_char": 157,
+      "start": 19.3,
+      "end": 19.58
+    },
+    {
+      "pid": "p002",
+      "widx": 29,
+      "text": "hurt",
+      "start_char": 158,
+      "end_char": 162,
+      "start": 19.58,
+      "end": 20.02
+    },
+    {
+      "pid": "p002",
+      "widx": 30,
+      "text": "if",
+      "start_char": 163,
+      "end_char": 165,
+      "start": 20.7,
+      "end": 20.82
+    },
+    {
+      "pid": "p002",
+      "widx": 31,
+      "text": "the",
+      "start_char": 166,
+      "end_char": 169,
+      "start": 20.82,
+      "end": 20.96
+    },
+    {
+      "pid": "p002",
+      "widx": 32,
+      "text": "shape",
+      "start_char": 170,
+      "end_char": 175,
+      "start": 20.96,
+      "end": 21.14
+    },
+    {
+      "pid": "p002",
+      "widx": 33,
+      "text": "of",
+      "start_char": 176,
+      "end_char": 178,
+      "start": 21.14,
+      "end": 21.32
+    },
+    {
+      "pid": "p002",
+      "widx": 34,
+      "text": "my",
+      "start_char": 179,
+      "end_char": 181,
+      "start": 21.32,
+      "end": 21.48
+    },
+    {
+      "pid": "p002",
+      "widx": 35,
+      "text": "fiction",
+      "start_char": 182,
+      "end_char": 189,
+      "start": 21.48,
+      "end": 21.9
+    },
+    {
+      "pid": "p002",
+      "widx": 36,
+      "text": "brushes",
+      "start_char": 190,
+      "end_char": 197,
+      "start": 21.9,
+      "end": 22.26
+    },
+    {
+      "pid": "p002",
+      "widx": 37,
+      "text": "up",
+      "start_char": 198,
+      "end_char": 200,
+      "start": 22.26,
+      "end": 22.56
+    },
+    {
+      "pid": "p002",
+      "widx": 38,
+      "text": "against",
+      "start_char": 201,
+      "end_char": 208,
+      "start": 22.56,
+      "end": 22.96
+    },
+    {
+      "pid": "p002",
+      "widx": 39,
+      "text": "your",
+      "start_char": 209,
+      "end_char": 213,
+      "start": 22.96,
+      "end": 23.22
+    },
+    {
+      "pid": "p002",
+      "widx": 40,
+      "text": "home",
+      "start_char": 214,
+      "end_char": 218,
+      "start": 23.22,
+      "end": 23.54
+    },
+    {
+      "pid": "p002",
+      "widx": 41,
+      "text": "and",
+      "start_char": 219,
+      "end_char": 222,
+      "start": 23.54,
+      "end": 24.04
+    },
+    {
+      "pid": "p002",
+      "widx": 42,
+      "text": "feels",
+      "start_char": 223,
+      "end_char": 228,
+      "start": 24.04,
+      "end": 24.28
+    },
+    {
+      "pid": "p002",
+      "widx": 43,
+      "text": "like",
+      "start_char": 229,
+      "end_char": 233,
+      "start": 24.28,
+      "end": 24.58
+    },
+    {
+      "pid": "p002",
+      "widx": 44,
+      "text": "trespass",
+      "start_char": 234,
+      "end_char": 242,
+      "start": 24.58,
+      "end": 25.18
+    },
+    {
+      "pid": "p002",
+      "widx": 45,
+      "text": "then",
+      "start_char": 243,
+      "end_char": 247,
+      "start": 26.18,
+      "end": 26.44
+    },
+    {
+      "pid": "p002",
+      "widx": 46,
+      "text": "I",
+      "start_char": 248,
+      "end_char": 249,
+      "start": 26.44,
+      "end": 26.8
+    },
+    {
+      "pid": "p002",
+      "widx": 47,
+      "text": "am",
+      "start_char": 250,
+      "end_char": 252,
+      "start": 26.8,
+      "end": 26.96
+    },
+    {
+      "pid": "p002",
+      "widx": 48,
+      "text": "truly",
+      "start_char": 253,
+      "end_char": 258,
+      "start": 26.96,
+      "end": 27.5
+    },
+    {
+      "pid": "p002",
+      "widx": 49,
+      "text": "sorry",
+      "start_char": 259,
+      "end_char": 264,
+      "start": 27.5,
+      "end": 28.16
+    },
+    {
+      "pid": "p002",
+      "widx": 50,
+      "text": "I",
+      "start_char": 266,
+      "end_char": 267,
+      "start": 29.32,
+      "end": 29.92
+    },
+    {
+      "pid": "p002",
+      "widx": 51,
+      "text": "have",
+      "start_char": 268,
+      "end_char": 272,
+      "start": 29.92,
+      "end": 30.02
+    },
+    {
+      "pid": "p002",
+      "widx": 52,
+      "text": "tried",
+      "start_char": 273,
+      "end_char": 278,
+      "start": 30.02,
+      "end": 30.28
+    },
+    {
+      "pid": "p002",
+      "widx": 53,
+      "text": "to",
+      "start_char": 279,
+      "end_char": 281,
+      "start": 30.28,
+      "end": 30.5
+    },
+    {
+      "pid": "p002",
+      "widx": 54,
+      "text": "write",
+      "start_char": 282,
+      "end_char": 287,
+      "start": 30.5,
+      "end": 30.68
+    },
+    {
+      "pid": "p002",
+      "widx": 55,
+      "text": "with",
+      "start_char": 288,
+      "end_char": 292,
+      "start": 30.68,
+      "end": 30.96
+    },
+    {
+      "pid": "p002",
+      "widx": 56,
+      "text": "respect",
+      "start_char": 293,
+      "end_char": 300,
+      "start": 30.96,
+      "end": 31.34
+    },
+    {
+      "pid": "p002",
+      "widx": 57,
+      "text": "but",
+      "start_char": 302,
+      "end_char": 305,
+      "start": 31.78,
+      "end": 31.84
+    },
+    {
+      "pid": "p002",
+      "widx": 58,
+      "text": "respect",
+      "start_char": 306,
+      "end_char": 313,
+      "start": 31.84,
+      "end": 32.24
+    },
+    {
+      "pid": "p002",
+      "widx": 59,
+      "text": "does",
+      "start_char": 314,
+      "end_char": 318,
+      "start": 32.24,
+      "end": 32.54
+    },
+    {
+      "pid": "p002",
+      "widx": 60,
+      "text": "not",
+      "start_char": 319,
+      "end_char": 322,
+      "start": 32.54,
+      "end": 32.7
+    },
+    {
+      "pid": "p002",
+      "widx": 61,
+      "text": "erase",
+      "start_char": 323,
+      "end_char": 328,
+      "start": 32.7,
+      "end": 33.02
+    },
+    {
+      "pid": "p002",
+      "widx": 62,
+      "text": "the",
+      "start_char": 329,
+      "end_char": 332,
+      "start": 33.02,
+      "end": 33.28
+    },
+    {
+      "pid": "p002",
+      "widx": 63,
+      "text": "fact",
+      "start_char": 333,
+      "end_char": 337,
+      "start": 33.28,
+      "end": 33.52
+    },
+    {
+      "pid": "p002",
+      "widx": 64,
+      "text": "that",
+      "start_char": 338,
+      "end_char": 342,
+      "start": 33.52,
+      "end": 33.74
+    },
+    {
+      "pid": "p002",
+      "widx": 65,
+      "text": "these",
+      "start_char": 343,
+      "end_char": 348,
+      "start": 33.74,
+      "end": 33.94
+    },
+    {
+      "pid": "p002",
+      "widx": 66,
+      "text": "are",
+      "start_char": 349,
+      "end_char": 352,
+      "start": 33.94,
+      "end": 34.12
+    },
+    {
+      "pid": "p002",
+      "widx": 67,
+      "text": "living",
+      "start_char": 353,
+      "end_char": 359,
+      "start": 34.12,
+      "end": 34.44
+    },
+    {
+      "pid": "p002",
+      "widx": 68,
+      "text": "places",
+      "start_char": 360,
+      "end_char": 366,
+      "start": 34.44,
+      "end": 34.94
+    },
+    {
+      "pid": "p002",
+      "widx": 69,
+      "text": "and",
+      "start_char": 368,
+      "end_char": 371,
+      "start": 34.94,
+      "end": 35.6
+    },
+    {
+      "pid": "p002",
+      "widx": 70,
+      "text": "that",
+      "start_char": 372,
+      "end_char": 376,
+      "start": 35.6,
+      "end": 35.74
+    },
+    {
+      "pid": "p002",
+      "widx": 71,
+      "text": "a",
+      "start_char": 377,
+      "end_char": 378,
+      "start": 35.74,
+      "end": 35.84
+    },
+    {
+      "pid": "p002",
+      "widx": 72,
+      "text": "name",
+      "start_char": 379,
+      "end_char": 383,
+      "start": 35.84,
+      "end": 36.1
+    },
+    {
+      "pid": "p002",
+      "widx": 73,
+      "text": "on",
+      "start_char": 384,
+      "end_char": 386,
+      "start": 36.1,
+      "end": 36.28
+    },
+    {
+      "pid": "p002",
+      "widx": 74,
+      "text": "a",
+      "start_char": 387,
+      "end_char": 388,
+      "start": 36.28,
+      "end": 36.4
+    },
+    {
+      "pid": "p002",
+      "widx": 75,
+      "text": "page",
+      "start_char": 389,
+      "end_char": 393,
+      "start": 36.4,
+      "end": 36.84
+    },
+    {
+      "pid": "p002",
+      "widx": 76,
+      "text": "can",
+      "start_char": 394,
+      "end_char": 397,
+      "start": 36.84,
+      "end": 37.14
+    },
+    {
+      "pid": "p002",
+      "widx": 77,
+      "text": "carry",
+      "start_char": 398,
+      "end_char": 403,
+      "start": 37.14,
+      "end": 37.46
+    },
+    {
+      "pid": "p002",
+      "widx": 78,
+      "text": "weight",
+      "start_char": 404,
+      "end_char": 410,
+      "start": 37.46,
+      "end": 37.84
+    },
+    {
+      "pid": "p003",
+      "widx": 0,
+      "text": "I",
+      "start_char": 0,
+      "end_char": 1,
+      "start": 38.5,
+      "end": 39.1
+    },
+    {
+      "pid": "p003",
+      "widx": 1,
+      "text": "grew",
+      "start_char": 2,
+      "end_char": 6,
+      "start": 39.1,
+      "end": 39.28
+    },
+    {
+      "pid": "p003",
+      "widx": 2,
+      "text": "up",
+      "start_char": 7,
+      "end_char": 9,
+      "start": 39.28,
+      "end": 39.56
+    },
+    {
+      "pid": "p003",
+      "widx": 3,
+      "text": "far",
+      "start_char": 10,
+      "end_char": 13,
+      "start": 39.56,
+      "end": 39.84
+    },
+    {
+      "pid": "p003",
+      "widx": 4,
+      "text": "from",
+      "start_char": 14,
+      "end_char": 18,
+      "start": 39.84,
+      "end": 40.06
+    },
+    {
+      "pid": "p003",
+      "widx": 5,
+      "text": "the",
+      "start_char": 19,
+      "end_char": 22,
+      "start": 40.06,
+      "end": 40.22
+    },
+    {
+      "pid": "p003",
+      "widx": 6,
+      "text": "coalfields",
+      "start_char": 23,
+      "end_char": 33,
+      "start": 40.22,
+      "end": 41.62
+    },
+    {
+      "pid": "p003",
+      "widx": 7,
+      "text": "In",
+      "start_char": 35,
+      "end_char": 37,
+      "start": 41.62,
+      "end": 41.86
+    },
+    {
+      "pid": "p003",
+      "widx": 8,
+      "text": "1984",
+      "start_char": 38,
+      "end_char": 42,
+      "start": 41.86,
+      "end": 42.76
+    },
+    {
+      "pid": "p003",
+      "widx": 9,
+      "text": "85",
+      "start_char": 43,
+      "end_char": 45,
+      "start": 43.84,
+      "end": 44.46
+    },
+    {
+      "pid": "p003",
+      "widx": 10,
+      "text": "I",
+      "start_char": 46,
+      "end_char": 47,
+      "start": 44.96,
+      "end": 45.06
+    },
+    {
+      "pid": "p003",
+      "widx": 11,
+      "text": "was",
+      "start_char": 48,
+      "end_char": 51,
+      "start": 45.06,
+      "end": 45.26
+    },
+    {
+      "pid": "p003",
+      "widx": 12,
+      "text": "in",
+      "start_char": 52,
+      "end_char": 54,
+      "start": 45.26,
+      "end": 45.38
+    },
+    {
+      "pid": "p003",
+      "widx": 13,
+      "text": "Sweden",
+      "start_char": 55,
+      "end_char": 61,
+      "start": 45.38,
+      "end": 45.82
+    },
+    {
+      "pid": "p003",
+      "widx": 14,
+      "text": "and",
+      "start_char": 63,
+      "end_char": 66,
+      "start": 46.58,
+      "end": 46.8
+    },
+    {
+      "pid": "p003",
+      "widx": 15,
+      "text": "yet",
+      "start_char": 67,
+      "end_char": 70,
+      "start": 46.8,
+      "end": 46.94
+    },
+    {
+      "pid": "p003",
+      "widx": 16,
+      "text": "the",
+      "start_char": 71,
+      "end_char": 74,
+      "start": 46.94,
+      "end": 47.06
+    },
+    {
+      "pid": "p003",
+      "widx": 17,
+      "text": "miners",
+      "start_char": 75,
+      "end_char": 81,
+      "start": 47.06,
+      "end": 47.42
+    },
+    {
+      "pid": "p003",
+      "widx": 18,
+      "text": "strike",
+      "start_char": 83,
+      "end_char": 89,
+      "start": 47.76,
+      "end": 47.86
+    },
+    {
+      "pid": "p003",
+      "widx": 19,
+      "text": "reached",
+      "start_char": 90,
+      "end_char": 97,
+      "start": 47.86,
+      "end": 48.5
+    },
+    {
+      "pid": "p003",
+      "widx": 20,
+      "text": "me",
+      "start_char": 98,
+      "end_char": 100,
+      "start": 48.5,
+      "end": 48.72
+    },
+    {
+      "pid": "p003",
+      "widx": 21,
+      "text": "anyway",
+      "start_char": 101,
+      "end_char": 107,
+      "start": 48.72,
+      "end": 49.12
+    },
+    {
+      "pid": "p003",
+      "widx": 22,
+      "text": "It",
+      "start_char": 109,
+      "end_char": 111,
+      "start": 49.98,
+      "end": 50.08
+    },
+    {
+      "pid": "p003",
+      "widx": 23,
+      "text": "travelled",
+      "start_char": 112,
+      "end_char": 121,
+      "start": 50.08,
+      "end": 50.42
+    },
+    {
+      "pid": "p003",
+      "widx": 24,
+      "text": "through",
+      "start_char": 122,
+      "end_char": 129,
+      "start": 50.42,
+      "end": 50.74
+    },
+    {
+      "pid": "p003",
+      "widx": 25,
+      "text": "radio",
+      "start_char": 130,
+      "end_char": 135,
+      "start": 50.74,
+      "end": 51.16
+    },
+    {
+      "pid": "p003",
+      "widx": 26,
+      "text": "reports",
+      "start_char": 136,
+      "end_char": 143,
+      "start": 51.16,
+      "end": 51.7
+    },
+    {
+      "pid": "p003",
+      "widx": 27,
+      "text": "and",
+      "start_char": 144,
+      "end_char": 147,
+      "start": 51.7,
+      "end": 52.0
+    },
+    {
+      "pid": "p003",
+      "widx": 28,
+      "text": "newspaper",
+      "start_char": 148,
+      "end_char": 157,
+      "start": 52.0,
+      "end": 52.38
+    },
+    {
+      "pid": "p003",
+      "widx": 29,
+      "text": "photographs",
+      "start_char": 158,
+      "end_char": 169,
+      "start": 52.38,
+      "end": 53.3
+    },
+    {
+      "pid": "p003",
+      "widx": 30,
+      "text": "through",
+      "start_char": 171,
+      "end_char": 178,
+      "start": 53.94,
+      "end": 54.12
+    },
+    {
+      "pid": "p003",
+      "widx": 31,
+      "text": "the",
+      "start_char": 179,
+      "end_char": 182,
+      "start": 54.12,
+      "end": 54.3
+    },
+    {
+      "pid": "p003",
+      "widx": 32,
+      "text": "tone",
+      "start_char": 183,
+      "end_char": 187,
+      "start": 54.3,
+      "end": 54.6
+    },
+    {
+      "pid": "p003",
+      "widx": 33,
+      "text": "of",
+      "start_char": 188,
+      "end_char": 190,
+      "start": 54.6,
+      "end": 54.82
+    },
+    {
+      "pid": "p003",
+      "widx": 34,
+      "text": "adult",
+      "start_char": 191,
+      "end_char": 196,
+      "start": 54.82,
+      "end": 55.04
+    },
+    {
+      "pid": "p003",
+      "widx": 35,
+      "text": "conversations",
+      "start_char": 197,
+      "end_char": 210,
+      "start": 55.04,
+      "end": 55.8
+    },
+    {
+      "pid": "p003",
+      "widx": 36,
+      "text": "through",
+      "start_char": 212,
+      "end_char": 219,
+      "start": 56.31,
+      "end": 56.68
+    },
+    {
+      "pid": "p003",
+      "widx": 37,
+      "text": "the",
+      "start_char": 220,
+      "end_char": 223,
+      "start": 56.68,
+      "end": 56.84
+    },
+    {
+      "pid": "p003",
+      "widx": 38,
+      "text": "sense",
+      "start_char": 224,
+      "end_char": 229,
+      "start": 56.84,
+      "end": 57.02
+    },
+    {
+      "pid": "p003",
+      "widx": 39,
+      "text": "that",
+      "start_char": 230,
+      "end_char": 234,
+      "start": 57.02,
+      "end": 57.3
+    },
+    {
+      "pid": "p003",
+      "widx": 40,
+      "text": "something",
+      "start_char": 235,
+      "end_char": 244,
+      "start": 57.3,
+      "end": 57.76
+    },
+    {
+      "pid": "p003",
+      "widx": 41,
+      "text": "was",
+      "start_char": 245,
+      "end_char": 248,
+      "start": 57.76,
+      "end": 58.1
+    },
+    {
+      "pid": "p003",
+      "widx": 42,
+      "text": "being",
+      "start_char": 249,
+      "end_char": 254,
+      "start": 58.1,
+      "end": 58.44
+    },
+    {
+      "pid": "p003",
+      "widx": 43,
+      "text": "decided",
+      "start_char": 255,
+      "end_char": 262,
+      "start": 58.44,
+      "end": 59.04
+    },
+    {
+      "pid": "p003",
+      "widx": 44,
+      "text": "publicly",
+      "start_char": 263,
+      "end_char": 271,
+      "start": 59.62,
+      "end": 60.1
+    },
+    {
+      "pid": "p003",
+      "widx": 45,
+      "text": "brutally",
+      "start_char": 273,
+      "end_char": 281,
+      "start": 60.94,
+      "end": 61.42
+    },
+    {
+      "pid": "p003",
+      "widx": 46,
+      "text": "about",
+      "start_char": 282,
+      "end_char": 287,
+      "start": 62.26,
+      "end": 62.5
+    },
+    {
+      "pid": "p003",
+      "widx": 47,
+      "text": "what",
+      "start_char": 288,
+      "end_char": 292,
+      "start": 62.5,
+      "end": 62.76
+    },
+    {
+      "pid": "p003",
+      "widx": 48,
+      "text": "kind",
+      "start_char": 293,
+      "end_char": 297,
+      "start": 62.76,
+      "end": 63.1
+    },
+    {
+      "pid": "p003",
+      "widx": 49,
+      "text": "of",
+      "start_char": 298,
+      "end_char": 300,
+      "start": 63.1,
+      "end": 63.28
+    },
+    {
+      "pid": "p003",
+      "widx": 50,
+      "text": "society",
+      "start_char": 301,
+      "end_char": 308,
+      "start": 63.28,
+      "end": 63.76
+    },
+    {
+      "pid": "p003",
+      "widx": 51,
+      "text": "people",
+      "start_char": 309,
+      "end_char": 315,
+      "start": 63.76,
+      "end": 64.26
+    },
+    {
+      "pid": "p003",
+      "widx": 52,
+      "text": "would",
+      "start_char": 316,
+      "end_char": 321,
+      "start": 64.26,
+      "end": 64.48
+    },
+    {
+      "pid": "p003",
+      "widx": 53,
+      "text": "be",
+      "start_char": 322,
+      "end_char": 324,
+      "start": 64.48,
+      "end": 64.62
+    },
+    {
+      "pid": "p003",
+      "widx": 54,
+      "text": "allowed",
+      "start_char": 325,
+      "end_char": 332,
+      "start": 64.62,
+      "end": 64.98
+    },
+    {
+      "pid": "p003",
+      "widx": 55,
+      "text": "to",
+      "start_char": 333,
+      "end_char": 335,
+      "start": 64.98,
+      "end": 65.28
+    },
+    {
+      "pid": "p003",
+      "widx": 56,
+      "text": "build",
+      "start_char": 336,
+      "end_char": 341,
+      "start": 65.28,
+      "end": 65.66
+    },
+    {
+      "pid": "p004",
+      "widx": 0,
+      "text": "Even",
+      "start_char": 0,
+      "end_char": 4,
+      "start": 66.8,
+      "end": 67.2
+    },
+    {
+      "pid": "p004",
+      "widx": 1,
+      "text": "from",
+      "start_char": 5,
+      "end_char": 9,
+      "start": 67.2,
+      "end": 67.4
+    },
+    {
+      "pid": "p004",
+      "widx": 2,
+      "text": "a",
+      "start_char": 10,
+      "end_char": 11,
+      "start": 67.4,
+      "end": 67.52
+    },
+    {
+      "pid": "p004",
+      "widx": 3,
+      "text": "distance",
+      "start_char": 12,
+      "end_char": 20,
+      "start": 67.52,
+      "end": 68.06
+    },
+    {
+      "pid": "p004",
+      "widx": 4,
+      "text": "it",
+      "start_char": 22,
+      "end_char": 24,
+      "start": 68.44,
+      "end": 68.5
+    },
+    {
+      "pid": "p004",
+      "widx": 5,
+      "text": "was",
+      "start_char": 25,
+      "end_char": 28,
+      "start": 68.5,
+      "end": 68.62
+    },
+    {
+      "pid": "p004",
+      "widx": 6,
+      "text": "impossible",
+      "start_char": 29,
+      "end_char": 39,
+      "start": 68.62,
+      "end": 69.14
+    },
+    {
+      "pid": "p004",
+      "widx": 7,
+      "text": "not",
+      "start_char": 40,
+      "end_char": 43,
+      "start": 69.14,
+      "end": 69.42
+    },
+    {
+      "pid": "p004",
+      "widx": 8,
+      "text": "to",
+      "start_char": 44,
+      "end_char": 46,
+      "start": 69.42,
+      "end": 69.62
+    },
+    {
+      "pid": "p004",
+      "widx": 9,
+      "text": "feel",
+      "start_char": 47,
+      "end_char": 51,
+      "start": 69.62,
+      "end": 69.82
+    },
+    {
+      "pid": "p004",
+      "widx": 10,
+      "text": "the",
+      "start_char": 52,
+      "end_char": 55,
+      "start": 69.82,
+      "end": 70.0
+    },
+    {
+      "pid": "p004",
+      "widx": 11,
+      "text": "human",
+      "start_char": 56,
+      "end_char": 61,
+      "start": 70.0,
+      "end": 70.34
+    },
+    {
+      "pid": "p004",
+      "widx": 12,
+      "text": "scale",
+      "start_char": 62,
+      "end_char": 67,
+      "start": 70.34,
+      "end": 70.82
+    },
+    {
+      "pid": "p004",
+      "widx": 13,
+      "text": "of",
+      "start_char": 68,
+      "end_char": 70,
+      "start": 70.82,
+      "end": 71.08
+    },
+    {
+      "pid": "p004",
+      "widx": 14,
+      "text": "it",
+      "start_char": 71,
+      "end_char": 73,
+      "start": 71.08,
+      "end": 71.26
+    },
+    {
+      "pid": "p004",
+      "widx": 15,
+      "text": "communities",
+      "start_char": 75,
+      "end_char": 86,
+      "start": 71.86,
+      "end": 72.4
+    },
+    {
+      "pid": "p004",
+      "widx": 16,
+      "text": "holding",
+      "start_char": 87,
+      "end_char": 94,
+      "start": 72.4,
+      "end": 72.84
+    },
+    {
+      "pid": "p004",
+      "widx": 17,
+      "text": "together",
+      "start_char": 95,
+      "end_char": 103,
+      "start": 72.84,
+      "end": 73.28
+    },
+    {
+      "pid": "p004",
+      "widx": 18,
+      "text": "under",
+      "start_char": 104,
+      "end_char": 109,
+      "start": 73.28,
+      "end": 73.64
+    },
+    {
+      "pid": "p004",
+      "widx": 19,
+      "text": "pressure",
+      "start_char": 110,
+      "end_char": 118,
+      "start": 73.64,
+      "end": 74.06
+    },
+    {
+      "pid": "p004",
+      "widx": 20,
+      "text": "families",
+      "start_char": 120,
+      "end_char": 128,
+      "start": 74.68,
+      "end": 75.1
+    },
+    {
+      "pid": "p004",
+      "widx": 21,
+      "text": "reorganising",
+      "start_char": 129,
+      "end_char": 141,
+      "start": 75.1,
+      "end": 76.2
+    },
+    {
+      "pid": "p004",
+      "widx": 22,
+      "text": "their",
+      "start_char": 142,
+      "end_char": 147,
+      "start": 76.2,
+      "end": 76.44
+    },
+    {
+      "pid": "p004",
+      "widx": 23,
+      "text": "whole",
+      "start_char": 148,
+      "end_char": 153,
+      "start": 76.44,
+      "end": 76.72
+    },
+    {
+      "pid": "p004",
+      "widx": 24,
+      "text": "lives",
+      "start_char": 154,
+      "end_char": 159,
+      "start": 76.72,
+      "end": 77.22
+    },
+    {
+      "pid": "p004",
+      "widx": 25,
+      "text": "around",
+      "start_char": 160,
+      "end_char": 166,
+      "start": 77.22,
+      "end": 77.58
+    },
+    {
+      "pid": "p004",
+      "widx": 26,
+      "text": "solidarity",
+      "start_char": 167,
+      "end_char": 177,
+      "start": 77.58,
+      "end": 78.46
+    },
+    {
+      "pid": "p004",
+      "widx": 27,
+      "text": "and",
+      "start_char": 179,
+      "end_char": 182,
+      "start": 78.46,
+      "end": 79.16
+    },
+    {
+      "pid": "p004",
+      "widx": 28,
+      "text": "the",
+      "start_char": 183,
+      "end_char": 186,
+      "start": 79.16,
+      "end": 79.28
+    },
+    {
+      "pid": "p004",
+      "widx": 29,
+      "text": "sharp",
+      "start_char": 187,
+      "end_char": 192,
+      "start": 79.28,
+      "end": 79.62
+    },
+    {
+      "pid": "p004",
+      "widx": 30,
+      "text": "line",
+      "start_char": 193,
+      "end_char": 197,
+      "start": 79.62,
+      "end": 79.98
+    },
+    {
+      "pid": "p004",
+      "widx": 31,
+      "text": "that",
+      "start_char": 198,
+      "end_char": 202,
+      "start": 79.98,
+      "end": 80.28
+    },
+    {
+      "pid": "p004",
+      "widx": 32,
+      "text": "forms",
+      "start_char": 203,
+      "end_char": 208,
+      "start": 80.28,
+      "end": 80.74
+    },
+    {
+      "pid": "p004",
+      "widx": 33,
+      "text": "when",
+      "start_char": 209,
+      "end_char": 213,
+      "start": 80.74,
+      "end": 81.26
+    },
+    {
+      "pid": "p004",
+      "widx": 34,
+      "text": "power",
+      "start_char": 214,
+      "end_char": 219,
+      "start": 81.26,
+      "end": 81.72
+    },
+    {
+      "pid": "p004",
+      "widx": 35,
+      "text": "chooses",
+      "start_char": 220,
+      "end_char": 227,
+      "start": 81.72,
+      "end": 82.2
+    },
+    {
+      "pid": "p004",
+      "widx": 36,
+      "text": "to",
+      "start_char": 228,
+      "end_char": 230,
+      "start": 82.2,
+      "end": 82.48
+    },
+    {
+      "pid": "p004",
+      "widx": 37,
+      "text": "treat",
+      "start_char": 231,
+      "end_char": 236,
+      "start": 82.48,
+      "end": 82.68
+    },
+    {
+      "pid": "p004",
+      "widx": 38,
+      "text": "neighbours",
+      "start_char": 237,
+      "end_char": 247,
+      "start": 82.68,
+      "end": 83.12
+    },
+    {
+      "pid": "p004",
+      "widx": 39,
+      "text": "as",
+      "start_char": 248,
+      "end_char": 250,
+      "start": 83.12,
+      "end": 83.58
+    },
+    {
+      "pid": "p004",
+      "widx": 40,
+      "text": "enemies",
+      "start_char": 251,
+      "end_char": 258,
+      "start": 83.58,
+      "end": 84.02
+    },
+    {
+      "pid": "p005",
+      "widx": 0,
+      "text": "This",
+      "start_char": 0,
+      "end_char": 4,
+      "start": 85.66,
+      "end": 85.98
+    },
+    {
+      "pid": "p005",
+      "widx": 1,
+      "text": "book",
+      "start_char": 5,
+      "end_char": 9,
+      "start": 85.98,
+      "end": 86.2
+    },
+    {
+      "pid": "p005",
+      "widx": 2,
+      "text": "is",
+      "start_char": 10,
+      "end_char": 12,
+      "start": 86.2,
+      "end": 86.38
+    },
+    {
+      "pid": "p005",
+      "widx": 3,
+      "text": "my",
+      "start_char": 13,
+      "end_char": 15,
+      "start": 86.38,
+      "end": 86.56
+    },
+    {
+      "pid": "p005",
+      "widx": 4,
+      "text": "attempt",
+      "start_char": 16,
+      "end_char": 23,
+      "start": 86.56,
+      "end": 86.88
+    },
+    {
+      "pid": "p005",
+      "widx": 5,
+      "text": "to",
+      "start_char": 24,
+      "end_char": 26,
+      "start": 86.88,
+      "end": 87.2
+    },
+    {
+      "pid": "p005",
+      "widx": 6,
+      "text": "honour",
+      "start_char": 27,
+      "end_char": 33,
+      "start": 87.2,
+      "end": 87.46
+    },
+    {
+      "pid": "p005",
+      "widx": 7,
+      "text": "what",
+      "start_char": 34,
+      "end_char": 38,
+      "start": 87.46,
+      "end": 87.7
+    },
+    {
+      "pid": "p005",
+      "widx": 8,
+      "text": "that",
+      "start_char": 39,
+      "end_char": 43,
+      "start": 87.7,
+      "end": 87.9
+    },
+    {
+      "pid": "p005",
+      "widx": 9,
+      "text": "period",
+      "start_char": 44,
+      "end_char": 50,
+      "start": 87.9,
+      "end": 88.36
+    },
+    {
+      "pid": "p005",
+      "widx": 10,
+      "text": "still",
+      "start_char": 51,
+      "end_char": 56,
+      "start": 88.36,
+      "end": 88.72
+    },
+    {
+      "pid": "p005",
+      "widx": 11,
+      "text": "asks",
+      "start_char": 57,
+      "end_char": 61,
+      "start": 88.72,
+      "end": 89.12
+    },
+    {
+      "pid": "p005",
+      "widx": 12,
+      "text": "of",
+      "start_char": 62,
+      "end_char": 64,
+      "start": 89.12,
+      "end": 89.34
+    },
+    {
+      "pid": "p005",
+      "widx": 13,
+      "text": "us",
+      "start_char": 65,
+      "end_char": 67,
+      "start": 89.34,
+      "end": 89.6
+    },
+    {
+      "pid": "p006",
+      "widx": 0,
+      "text": "Not",
+      "start_char": 0,
+      "end_char": 3,
+      "start": 90.58,
+      "end": 90.88
+    },
+    {
+      "pid": "p006",
+      "widx": 1,
+      "text": "in",
+      "start_char": 4,
+      "end_char": 6,
+      "start": 90.88,
+      "end": 91.12
+    },
+    {
+      "pid": "p006",
+      "widx": 2,
+      "text": "slogans",
+      "start_char": 7,
+      "end_char": 14,
+      "start": 91.12,
+      "end": 91.68
+    },
+    {
+      "pid": "p006",
+      "widx": 3,
+      "text": "but",
+      "start_char": 16,
+      "end_char": 19,
+      "start": 91.68,
+      "end": 91.98
+    },
+    {
+      "pid": "p006",
+      "widx": 4,
+      "text": "in",
+      "start_char": 20,
+      "end_char": 22,
+      "start": 91.98,
+      "end": 92.14
+    },
+    {
+      "pid": "p006",
+      "widx": 5,
+      "text": "the",
+      "start_char": 23,
+      "end_char": 26,
+      "start": 92.14,
+      "end": 92.26
+    },
+    {
+      "pid": "p006",
+      "widx": 6,
+      "text": "texture",
+      "start_char": 27,
+      "end_char": 34,
+      "start": 92.26,
+      "end": 92.68
+    },
+    {
+      "pid": "p006",
+      "widx": 7,
+      "text": "of",
+      "start_char": 35,
+      "end_char": 37,
+      "start": 92.68,
+      "end": 92.94
+    },
+    {
+      "pid": "p006",
+      "widx": 8,
+      "text": "it",
+      "start_char": 38,
+      "end_char": 40,
+      "start": 92.94,
+      "end": 93.08
+    },
+    {
+      "pid": "p006",
+      "widx": 9,
+      "text": "the",
+      "start_char": 42,
+      "end_char": 45,
+      "start": 93.7,
+      "end": 93.8
+    },
+    {
+      "pid": "p006",
+      "widx": 10,
+      "text": "meetings",
+      "start_char": 46,
+      "end_char": 54,
+      "start": 93.8,
+      "end": 94.12
+    },
+    {
+      "pid": "p006",
+      "widx": 11,
+      "text": "that",
+      "start_char": 55,
+      "end_char": 59,
+      "start": 94.12,
+      "end": 94.44
+    },
+    {
+      "pid": "p006",
+      "widx": 12,
+      "text": "run",
+      "start_char": 60,
+      "end_char": 63,
+      "start": 94.44,
+      "end": 94.62
+    },
+    {
+      "pid": "p006",
+      "widx": 13,
+      "text": "late",
+      "start_char": 64,
+      "end_char": 68,
+      "start": 94.62,
+      "end": 94.92
+    },
+    {
+      "pid": "p006",
+      "widx": 14,
+      "text": "the",
+      "start_char": 70,
+      "end_char": 73,
+      "start": 95.52,
+      "end": 95.64
+    },
+    {
+      "pid": "p006",
+      "widx": 15,
+      "text": "cups",
+      "start_char": 74,
+      "end_char": 78,
+      "start": 95.64,
+      "end": 95.82
+    },
+    {
+      "pid": "p006",
+      "widx": 16,
+      "text": "of",
+      "start_char": 79,
+      "end_char": 81,
+      "start": 95.82,
+      "end": 96.06
+    },
+    {
+      "pid": "p006",
+      "widx": 17,
+      "text": "tea",
+      "start_char": 82,
+      "end_char": 85,
+      "start": 96.06,
+      "end": 96.26
+    },
+    {
+      "pid": "p006",
+      "widx": 18,
+      "text": "gone",
+      "start_char": 86,
+      "end_char": 90,
+      "start": 96.26,
+      "end": 96.6
+    },
+    {
+      "pid": "p006",
+      "widx": 19,
+      "text": "cold",
+      "start_char": 91,
+      "end_char": 95,
+      "start": 96.6,
+      "end": 97.06
+    },
+    {
+      "pid": "p006",
+      "widx": 20,
+      "text": "the",
+      "start_char": 97,
+      "end_char": 100,
+      "start": 97.7,
+      "end": 97.8
+    },
+    {
+      "pid": "p006",
+      "widx": 21,
+      "text": "small",
+      "start_char": 101,
+      "end_char": 106,
+      "start": 97.8,
+      "end": 98.1
+    },
+    {
+      "pid": "p006",
+      "widx": 22,
+      "text": "humiliations",
+      "start_char": 107,
+      "end_char": 119,
+      "start": 98.1,
+      "end": 98.92
+    },
+    {
+      "pid": "p006",
+      "widx": 23,
+      "text": "and",
+      "start_char": 120,
+      "end_char": 123,
+      "start": 98.92,
+      "end": 99.1
+    },
+    {
+      "pid": "p006",
+      "widx": 24,
+      "text": "the",
+      "start_char": 124,
+      "end_char": 127,
+      "start": 99.1,
+      "end": 99.2
+    },
+    {
+      "pid": "p006",
+      "widx": 25,
+      "text": "private",
+      "start_char": 128,
+      "end_char": 135,
+      "start": 99.2,
+      "end": 99.6
+    },
+    {
+      "pid": "p006",
+      "widx": 26,
+      "text": "courage",
+      "start_char": 136,
+      "end_char": 143,
+      "start": 99.6,
+      "end": 100.0
+    },
+    {
+      "pid": "p006",
+      "widx": 27,
+      "text": "the",
+      "start_char": 145,
+      "end_char": 148,
+      "start": 100.58,
+      "end": 100.68
+    },
+    {
+      "pid": "p006",
+      "widx": 28,
+      "text": "infrastructure",
+      "start_char": 149,
+      "end_char": 163,
+      "start": 100.68,
+      "end": 101.26
+    },
+    {
+      "pid": "p006",
+      "widx": 29,
+      "text": "of",
+      "start_char": 164,
+      "end_char": 166,
+      "start": 101.26,
+      "end": 101.62
+    },
+    {
+      "pid": "p006",
+      "widx": 30,
+      "text": "care",
+      "start_char": 167,
+      "end_char": 171,
+      "start": 101.62,
+      "end": 101.94
+    },
+    {
+      "pid": "p006",
+      "widx": 31,
+      "text": "that",
+      "start_char": 172,
+      "end_char": 176,
+      "start": 101.94,
+      "end": 102.22
+    },
+    {
+      "pid": "p006",
+      "widx": 32,
+      "text": "doesn",
+      "start_char": 177,
+      "end_char": 182,
+      "start": 102.22,
+      "end": 102.39
+    },
+    {
+      "pid": "p006",
+      "widx": 33,
+      "text": "t",
+      "start_char": 183,
+      "end_char": 184,
+      "start": 102.39,
+      "end": 102.56
+    },
+    {
+      "pid": "p006",
+      "widx": 34,
+      "text": "make",
+      "start_char": 185,
+      "end_char": 189,
+      "start": 102.56,
+      "end": 102.72
+    },
+    {
+      "pid": "p006",
+      "widx": 35,
+      "text": "the",
+      "start_char": 190,
+      "end_char": 193,
+      "start": 102.72,
+      "end": 102.9
+    },
+    {
+      "pid": "p006",
+      "widx": 36,
+      "text": "headlines",
+      "start_char": 194,
+      "end_char": 203,
+      "start": 102.9,
+      "end": 103.38
+    },
+    {
+      "pid": "p006",
+      "widx": 37,
+      "text": "but",
+      "start_char": 204,
+      "end_char": 207,
+      "start": 103.9,
+      "end": 104.04
+    },
+    {
+      "pid": "p006",
+      "widx": 38,
+      "text": "makes",
+      "start_char": 208,
+      "end_char": 213,
+      "start": 104.04,
+      "end": 104.24
+    },
+    {
+      "pid": "p006",
+      "widx": 39,
+      "text": "survival",
+      "start_char": 214,
+      "end_char": 222,
+      "start": 104.24,
+      "end": 104.9
+    },
+    {
+      "pid": "p006",
+      "widx": 40,
+      "text": "possible",
+      "start_char": 223,
+      "end_char": 231,
+      "start": 104.9,
+      "end": 105.48
+    },
+    {
+      "pid": "p007",
+      "widx": 0,
+      "text": "I",
+      "start_char": 0,
+      "end_char": 1,
+      "start": 106.24,
+      "end": 106.88
+    },
+    {
+      "pid": "p007",
+      "widx": 1,
+      "text": "wanted",
+      "start_char": 2,
+      "end_char": 8,
+      "start": 106.88,
+      "end": 107.18
+    },
+    {
+      "pid": "p007",
+      "widx": 2,
+      "text": "to",
+      "start_char": 9,
+      "end_char": 11,
+      "start": 107.18,
+      "end": 107.38
+    },
+    {
+      "pid": "p007",
+      "widx": 3,
+      "text": "write",
+      "start_char": 12,
+      "end_char": 17,
+      "start": 107.38,
+      "end": 107.6
+    },
+    {
+      "pid": "p007",
+      "widx": 4,
+      "text": "a",
+      "start_char": 18,
+      "end_char": 19,
+      "start": 107.6,
+      "end": 107.84
+    },
+    {
+      "pid": "p007",
+      "widx": 5,
+      "text": "story",
+      "start_char": 20,
+      "end_char": 25,
+      "start": 107.84,
+      "end": 108.24
+    },
+    {
+      "pid": "p007",
+      "widx": 6,
+      "text": "that",
+      "start_char": 26,
+      "end_char": 30,
+      "start": 108.24,
+      "end": 108.46
+    },
+    {
+      "pid": "p007",
+      "widx": 7,
+      "text": "shows",
+      "start_char": 31,
+      "end_char": 36,
+      "start": 108.46,
+      "end": 108.76
+    },
+    {
+      "pid": "p007",
+      "widx": 8,
+      "text": "what",
+      "start_char": 37,
+      "end_char": 41,
+      "start": 108.76,
+      "end": 109.06
+    },
+    {
+      "pid": "p007",
+      "widx": 9,
+      "text": "we",
+      "start_char": 42,
+      "end_char": 44,
+      "start": 109.06,
+      "end": 109.24
+    },
+    {
+      "pid": "p007",
+      "widx": 10,
+      "text": "can",
+      "start_char": 45,
+      "end_char": 48,
+      "start": 109.24,
+      "end": 109.5
+    },
+    {
+      "pid": "p007",
+      "widx": 11,
+      "text": "do",
+      "start_char": 49,
+      "end_char": 51,
+      "start": 109.5,
+      "end": 109.88
+    },
+    {
+      "pid": "p007",
+      "widx": 12,
+      "text": "and",
+      "start_char": 52,
+      "end_char": 55,
+      "start": 109.88,
+      "end": 110.5
+    },
+    {
+      "pid": "p007",
+      "widx": 13,
+      "text": "what",
+      "start_char": 56,
+      "end_char": 60,
+      "start": 110.5,
+      "end": 110.66
+    },
+    {
+      "pid": "p007",
+      "widx": 14,
+      "text": "we",
+      "start_char": 61,
+      "end_char": 63,
+      "start": 110.66,
+      "end": 110.82
+    },
+    {
+      "pid": "p007",
+      "widx": 15,
+      "text": "can",
+      "start_char": 64,
+      "end_char": 67,
+      "start": 110.82,
+      "end": 111.04
+    },
+    {
+      "pid": "p007",
+      "widx": 16,
+      "text": "achieve",
+      "start_char": 68,
+      "end_char": 75,
+      "start": 111.04,
+      "end": 111.56
+    },
+    {
+      "pid": "p007",
+      "widx": 17,
+      "text": "if",
+      "start_char": 76,
+      "end_char": 78,
+      "start": 111.56,
+      "end": 112.28
+    },
+    {
+      "pid": "p007",
+      "widx": 18,
+      "text": "we",
+      "start_char": 79,
+      "end_char": 81,
+      "start": 112.28,
+      "end": 112.4
+    },
+    {
+      "pid": "p007",
+      "widx": 19,
+      "text": "come",
+      "start_char": 82,
+      "end_char": 86,
+      "start": 112.4,
+      "end": 112.6
+    },
+    {
+      "pid": "p007",
+      "widx": 20,
+      "text": "together",
+      "start_char": 87,
+      "end_char": 95,
+      "start": 112.6,
+      "end": 113.02
+    },
+    {
+      "pid": "p007",
+      "widx": 21,
+      "text": "and",
+      "start_char": 96,
+      "end_char": 99,
+      "start": 113.02,
+      "end": 113.34
+    },
+    {
+      "pid": "p007",
+      "widx": 22,
+      "text": "decide",
+      "start_char": 100,
+      "end_char": 106,
+      "start": 113.34,
+      "end": 113.68
+    },
+    {
+      "pid": "p007",
+      "widx": 23,
+      "text": "that",
+      "start_char": 107,
+      "end_char": 111,
+      "start": 113.68,
+      "end": 113.92
+    },
+    {
+      "pid": "p007",
+      "widx": 24,
+      "text": "it",
+      "start_char": 112,
+      "end_char": 114,
+      "start": 113.92,
+      "end": 114.06
+    },
+    {
+      "pid": "p007",
+      "widx": 25,
+      "text": "is",
+      "start_char": 115,
+      "end_char": 117,
+      "start": 114.06,
+      "end": 114.26
+    },
+    {
+      "pid": "p007",
+      "widx": 26,
+      "text": "worth",
+      "start_char": 118,
+      "end_char": 123,
+      "start": 114.26,
+      "end": 114.62
+    },
+    {
+      "pid": "p007",
+      "widx": 27,
+      "text": "standing",
+      "start_char": 124,
+      "end_char": 132,
+      "start": 114.62,
+      "end": 115.16
+    },
+    {
+      "pid": "p007",
+      "widx": 28,
+      "text": "on",
+      "start_char": 133,
+      "end_char": 135,
+      "start": 115.16,
+      "end": 115.4
+    },
+    {
+      "pid": "p007",
+      "widx": 29,
+      "text": "the",
+      "start_char": 136,
+      "end_char": 139,
+      "start": 115.4,
+      "end": 115.52
+    },
+    {
+      "pid": "p007",
+      "widx": 30,
+      "text": "good",
+      "start_char": 140,
+      "end_char": 144,
+      "start": 115.52,
+      "end": 115.74
+    },
+    {
+      "pid": "p007",
+      "widx": 31,
+      "text": "side",
+      "start_char": 145,
+      "end_char": 149,
+      "start": 115.74,
+      "end": 116.22
+    },
+    {
+      "pid": "p007",
+      "widx": 32,
+      "text": "The",
+      "start_char": 151,
+      "end_char": 154,
+      "start": 116.22,
+      "end": 116.72999999999999
+    },
+    {
+      "pid": "p007",
+      "widx": 33,
+      "text": "side",
+      "start_char": 155,
+      "end_char": 159,
+      "start": 116.72999999999999,
+      "end": 117.24
+    },
+    {
+      "pid": "p007",
+      "widx": 34,
+      "text": "where",
+      "start_char": 160,
+      "end_char": 165,
+      "start": 117.24,
+      "end": 117.58
+    },
+    {
+      "pid": "p007",
+      "widx": 35,
+      "text": "we",
+      "start_char": 166,
+      "end_char": 168,
+      "start": 117.58,
+      "end": 117.74
+    },
+    {
+      "pid": "p007",
+      "widx": 36,
+      "text": "stop",
+      "start_char": 169,
+      "end_char": 173,
+      "start": 117.74,
+      "end": 117.94
+    },
+    {
+      "pid": "p007",
+      "widx": 37,
+      "text": "looking",
+      "start_char": 174,
+      "end_char": 181,
+      "start": 117.94,
+      "end": 118.32
+    },
+    {
+      "pid": "p007",
+      "widx": 38,
+      "text": "at",
+      "start_char": 182,
+      "end_char": 184,
+      "start": 118.32,
+      "end": 118.52
+    },
+    {
+      "pid": "p007",
+      "widx": 39,
+      "text": "each",
+      "start_char": 185,
+      "end_char": 189,
+      "start": 118.52,
+      "end": 118.72
+    },
+    {
+      "pid": "p007",
+      "widx": 40,
+      "text": "other",
+      "start_char": 190,
+      "end_char": 195,
+      "start": 118.72,
+      "end": 118.92
+    },
+    {
+      "pid": "p007",
+      "widx": 41,
+      "text": "as",
+      "start_char": 196,
+      "end_char": 198,
       "start": 118.92,
       "end": 119.14
     },
     {
-      "pid": "p009",
+      "pid": "p007",
+      "widx": 42,
+      "text": "enemies",
+      "start_char": 199,
+      "end_char": 206,
       "start": 119.14,
       "end": 119.46
+    },
+    {
+      "pid": "p007",
+      "widx": 43,
+      "text": "within",
+      "start_char": 207,
+      "end_char": 213,
+      "start": 119.46,
+      "end": 119.84
+    },
+    {
+      "pid": "p007",
+      "widx": 44,
+      "text": "anything",
+      "start_char": 214,
+      "end_char": 222,
+      "start": 119.84,
+      "end": 120.36
+    },
+    {
+      "pid": "p007",
+      "widx": 45,
+      "text": "and",
+      "start_char": 224,
+      "end_char": 227,
+      "start": 120.36,
+      "end": 121.18
+    },
+    {
+      "pid": "p007",
+      "widx": 46,
+      "text": "start",
+      "start_char": 228,
+      "end_char": 233,
+      "start": 121.18,
+      "end": 121.46
+    },
+    {
+      "pid": "p007",
+      "widx": 47,
+      "text": "seeing",
+      "start_char": 234,
+      "end_char": 240,
+      "start": 121.46,
+      "end": 121.9
+    },
+    {
+      "pid": "p007",
+      "widx": 48,
+      "text": "each",
+      "start_char": 241,
+      "end_char": 245,
+      "start": 121.9,
+      "end": 122.16
+    },
+    {
+      "pid": "p007",
+      "widx": 49,
+      "text": "other",
+      "start_char": 246,
+      "end_char": 251,
+      "start": 122.16,
+      "end": 122.36
+    },
+    {
+      "pid": "p007",
+      "widx": 50,
+      "text": "as",
+      "start_char": 252,
+      "end_char": 254,
+      "start": 122.36,
+      "end": 122.58
+    },
+    {
+      "pid": "p007",
+      "widx": 51,
+      "text": "human",
+      "start_char": 255,
+      "end_char": 260,
+      "start": 122.58,
+      "end": 122.82
+    },
+    {
+      "pid": "p007",
+      "widx": 52,
+      "text": "beings",
+      "start_char": 261,
+      "end_char": 267,
+      "start": 122.82,
+      "end": 123.4
+    },
+    {
+      "pid": "p007",
+      "widx": 53,
+      "text": "people",
+      "start_char": 269,
+      "end_char": 275,
+      "start": 124.08,
+      "end": 124.46
+    },
+    {
+      "pid": "p007",
+      "widx": 54,
+      "text": "who",
+      "start_char": 276,
+      "end_char": 279,
+      "start": 124.46,
+      "end": 124.64
+    },
+    {
+      "pid": "p007",
+      "widx": 55,
+      "text": "should",
+      "start_char": 280,
+      "end_char": 286,
+      "start": 124.64,
+      "end": 124.84
+    },
+    {
+      "pid": "p007",
+      "widx": 56,
+      "text": "look",
+      "start_char": 287,
+      "end_char": 291,
+      "start": 124.84,
+      "end": 124.96
+    },
+    {
+      "pid": "p007",
+      "widx": 57,
+      "text": "after",
+      "start_char": 292,
+      "end_char": 297,
+      "start": 124.96,
+      "end": 125.38
+    },
+    {
+      "pid": "p007",
+      "widx": 58,
+      "text": "one",
+      "start_char": 298,
+      "end_char": 301,
+      "start": 125.38,
+      "end": 125.58
+    },
+    {
+      "pid": "p007",
+      "widx": 59,
+      "text": "another",
+      "start_char": 302,
+      "end_char": 309,
+      "start": 125.58,
+      "end": 125.92
+    },
+    {
+      "pid": "p007",
+      "widx": 60,
+      "text": "and",
+      "start_char": 311,
+      "end_char": 314,
+      "start": 125.92,
+      "end": 126.78
+    },
+    {
+      "pid": "p007",
+      "widx": 61,
+      "text": "help",
+      "start_char": 315,
+      "end_char": 319,
+      "start": 126.78,
+      "end": 127.2
+    },
+    {
+      "pid": "p008",
+      "widx": 0,
+      "text": "Boge",
+      "start_char": 0,
+      "end_char": 4,
+      "start": 127.2,
+      "end": 129.66
+    },
+    {
+      "pid": "p008",
+      "widx": 1,
+      "text": "November",
+      "start_char": 11,
+      "end_char": 19,
+      "start": 129.66,
+      "end": 129.7
+    },
+    {
+      "pid": "p008",
+      "widx": 2,
+      "text": "2025",
+      "start_char": 20,
+      "end_char": 24,
+      "start": 129.7,
+      "end": 130.7
+    },
+    {
+      "pid": "p009",
+      "widx": 0,
+      "text": "Joakim",
+      "start_char": 0,
+      "end_char": 6,
+      "start": 130.7,
+      "end": 130.7
+    },
+    {
+      "pid": "p009",
+      "widx": 1,
+      "text": "Wassberg",
+      "start_char": 7,
+      "end_char": 15,
+      "start": 130.7,
+      "end": 130.7
     }
   ],
-  "generated_at": "2026-01-08T08:34:19+00:00"
+  "generated_at": "2026-01-08T09:38:59+00:00"
 }

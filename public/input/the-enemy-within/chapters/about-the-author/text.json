@@ -1,5 +1,9 @@
 [
   {
+    "pid": "p000",
+    "text": "About the author"
+  },
+  {
     "pid": "p001",
     "text": "Joakim Wassberg writes historically grounded fiction with a bias towards lived detail: the small routines, the local language, the awkward jokes, the practical problems, the private compromises. His work is driven by research, first-hand testimony, and an interest in how ordinary people experience events that later get flattened into headlines."
   },
