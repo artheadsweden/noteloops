@@ -367,6 +367,7 @@ export default function ReaderClient({
       autoScroll: `reader:autoScrollToTop`,
       highlightParagraph: `reader:highlightParagraph`,
       highlightWord: `reader:highlightWord`,
+      listenMode: `reader:listenMode`,
       playbackRate: `reader:playbackRate`,
       sleepPresetSeconds: `reader:sleepPresetSeconds`
     }),
@@ -383,6 +384,7 @@ export default function ReaderClient({
     setAutoScrollToTopEnabled(readBoolSetting(SETTINGS.autoScroll, true));
     setHighlightParagraphEnabled(readBoolSetting(SETTINGS.highlightParagraph, true));
     setHighlightWordEnabled(readBoolSetting(SETTINGS.highlightWord, true));
+    setListenMode(readBoolSetting(SETTINGS.listenMode, false));
   }, [readBoolSetting, SETTINGS]);
 
   const [sleepPresetSeconds, setSleepPresetSeconds] = useState(0);
@@ -422,6 +424,10 @@ export default function ReaderClient({
         setHighlightWordEnabled(reader.highlightWord);
         writeBoolSetting(SETTINGS.highlightWord, reader.highlightWord);
       }
+      if (typeof reader.listenMode === "boolean") {
+        setListenMode(reader.listenMode);
+        writeBoolSetting(SETTINGS.listenMode, reader.listenMode);
+      }
       if (typeof reader.playbackRate === "number" && Number.isFinite(reader.playbackRate)) {
         setPlaybackRate(reader.playbackRate);
         writeNumberSetting(SETTINGS.playbackRate, reader.playbackRate);
@@ -439,6 +445,20 @@ export default function ReaderClient({
       cancelled = true;
     };
   }, [SETTINGS, writeBoolSetting, writeNumberSetting]);
+
+  const setListenModePersisted = useCallback(
+    (next: boolean) => {
+      setListenMode(next);
+      writeBoolSetting(SETTINGS.listenMode, next);
+      void updateSupabaseUserSettings({ reader: { listenMode: next } });
+
+      if (!next) {
+        setListenChaptersOpen(false);
+        setListenSettingsOpen(false);
+      }
+    },
+    [SETTINGS.listenMode, writeBoolSetting]
+  );
 
   const [drawer, setDrawer] = useState<DrawerState | null>(null);
   const [drawerLoading, setDrawerLoading] = useState(false);
@@ -1373,6 +1393,8 @@ export default function ReaderClient({
 
   return (
     <>
+      {audioUrl ? <audio ref={audioRef} src={audioUrl} preload="metadata" className="hidden" /> : null}
+
       <div
         className={cn(
           "mt-6 grid gap-6",
@@ -1399,7 +1421,7 @@ export default function ReaderClient({
                 type="checkbox"
                 className="h-4 w-4 rounded border border-input bg-background"
                 checked={listenMode}
-                onChange={(e) => setListenMode(e.target.checked)}
+                onChange={(e) => setListenModePersisted(e.target.checked)}
               />
             </label>
 
@@ -1490,8 +1512,6 @@ export default function ReaderClient({
           <div className="h-px bg-border/60" />
           {audioUrl ? (
             <>
-              <audio ref={audioRef} src={audioUrl} preload="metadata" className="hidden" />
-
               <div className="grid gap-3">
                 <Button
                   type="button"
@@ -1807,7 +1827,7 @@ export default function ReaderClient({
                     type="checkbox"
                     className="h-4 w-4 rounded border border-input bg-background"
                     checked={listenMode}
-                    onChange={(e) => setListenMode(e.target.checked)}
+                    onChange={(e) => setListenModePersisted(e.target.checked)}
                   />
                 </label>
 

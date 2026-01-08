@@ -5,6 +5,7 @@ export type ReaderSettings = {
   autoScrollToTop?: boolean;
   highlightParagraph?: boolean;
   highlightWord?: boolean;
+  listenMode?: boolean;
   playbackRate?: number;
   sleepPresetSeconds?: number;
 };
