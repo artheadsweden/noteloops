@@ -159,16 +159,11 @@ export default function HeaderNav() {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button type="button" variant="ghost" size="icon" aria-label="Account menu">
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-muted text-xs font-semibold text-foreground">
-                  {userEmail ? userEmail.slice(0, 1).toUpperCase() : <User className="h-4 w-4" aria-hidden="true" />}
-                </span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">Account</TooltipContent>
-          </Tooltip>
+          <Button type="button" variant="ghost" size="icon" aria-label="Account menu" title="Account">
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-muted text-xs font-semibold text-foreground">
+              {userEmail ? userEmail.slice(0, 1).toUpperCase() : <User className="h-4 w-4" aria-hidden="true" />}
+            </span>
+          </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem asChild>
