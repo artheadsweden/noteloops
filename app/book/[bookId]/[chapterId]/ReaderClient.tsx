@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Gauge,
   List,
@@ -52,6 +53,15 @@ type ProgressDraft = {
   furthest_pid: string | null;
   furthest_timestamp: number;
 };
+
+type DebugDomState =
+  | { hasParagraph: false }
+  | {
+      hasParagraph: true;
+      hasMarkup: boolean;
+      hasAnyWordSpans: boolean;
+      hasCurrentWordSpan: boolean;
+    };
 
 function formatTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -239,6 +249,8 @@ export default function ReaderClient({
   audioUrl,
   initialPid,
   initialTime,
+  debug,
+  autoplay,
   chapters
 }: {
   bookId: string;
@@ -250,8 +262,12 @@ export default function ReaderClient({
   audioUrl?: string;
   initialPid?: string;
   initialTime?: number;
+  debug?: boolean;
+  autoplay?: boolean;
   chapters: Array<{ chapter_id: string; title: string }>;
 }) {
+  const router = useRouter();
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const highlightedPidRef = useRef<string | null>(null);
@@ -267,6 +283,50 @@ export default function ReaderClient({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [playbackRate, setPlaybackRate] = useState(1);
+
+  const debugEnabled = Boolean(debug);
+
+  const readBoolSetting = useCallback((key: string, defaultValue: boolean) => {
+    try {
+      const raw = window.localStorage.getItem(key);
+      if (raw === null) return defaultValue;
+      if (raw === "1" || raw === "true") return true;
+      if (raw === "0" || raw === "false") return false;
+      return defaultValue;
+    } catch {
+      return defaultValue;
+    }
+  }, []);
+
+  const writeBoolSetting = useCallback((key: string, value: boolean) => {
+    try {
+      window.localStorage.setItem(key, value ? "1" : "0");
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const SETTINGS = useMemo(
+    () => ({
+      autoAdvance: `reader:autoAdvance`,
+      autoScroll: `reader:autoScrollToTop`,
+      highlightParagraph: `reader:highlightParagraph`,
+      highlightWord: `reader:highlightWord`
+    }),
+    []
+  );
+
+  const [autoAdvanceEnabled, setAutoAdvanceEnabled] = useState(true);
+  const [autoScrollToTopEnabled, setAutoScrollToTopEnabled] = useState(true);
+  const [highlightParagraphEnabled, setHighlightParagraphEnabled] = useState(true);
+  const [highlightWordEnabled, setHighlightWordEnabled] = useState(true);
+
+  useEffect(() => {
+    setAutoAdvanceEnabled(readBoolSetting(SETTINGS.autoAdvance, true));
+    setAutoScrollToTopEnabled(readBoolSetting(SETTINGS.autoScroll, true));
+    setHighlightParagraphEnabled(readBoolSetting(SETTINGS.highlightParagraph, true));
+    setHighlightWordEnabled(readBoolSetting(SETTINGS.highlightWord, true));
+  }, [readBoolSetting, SETTINGS]);
 
   const [sleepPresetSeconds, setSleepPresetSeconds] = useState(0);
   const [sleepRemainingSeconds, setSleepRemainingSeconds] = useState<number | null>(null);
@@ -367,6 +427,55 @@ export default function ReaderClient({
     [alignSegments]
   );
 
+  const debugSegment = useMemo(() => {
+    if (!debugEnabled) return null;
+    return findSegmentForTime(segments, currentTime);
+  }, [currentTime, debugEnabled, segments]);
+
+  const debugPid = debugSegment?.pid ?? null;
+
+  const debugWords = useMemo(() => {
+    if (!debugEnabled) return null;
+    if (!debugPid) return null;
+    return alignWordsByPid?.[debugPid] ?? null;
+  }, [alignWordsByPid, debugEnabled, debugPid]);
+
+  const debugWord = useMemo(() => {
+    if (!debugEnabled) return null;
+    if (!debugWords) return null;
+    return findWordForTime(debugWords, currentTime);
+  }, [currentTime, debugEnabled, debugWords]);
+
+  const debugDom = useMemo<DebugDomState | null>(() => {
+    if (!debugEnabled) return null;
+
+    const root = containerRef.current;
+    if (!root) return null;
+
+    const pid = debugPid;
+    const widx = debugWord?.widx;
+    if (!pid) return { hasParagraph: false };
+
+    const p = root.querySelector(`p[data-pid="${cssEscape(pid)}"]`);
+    if (!(p instanceof HTMLElement)) return { hasParagraph: false };
+
+    const hasMarkup = p.querySelector("*") !== null;
+    const hasAnyWordSpans = p.querySelector("span[data-widx]") !== null;
+
+    let hasCurrentWordSpan = false;
+    if (typeof widx === "number") {
+      const span = p.querySelector(`span[data-widx="${String(widx)}"]`);
+      hasCurrentWordSpan = span instanceof HTMLElement;
+    }
+
+    return {
+      hasParagraph: true,
+      hasMarkup,
+      hasAnyWordSpans,
+      hasCurrentWordSpan
+    };
+  }, [debugEnabled, debugPid, debugWord?.widx]);
+
   useEffect(() => {
     const root = containerRef.current;
     if (!root) return;
@@ -392,6 +501,12 @@ export default function ReaderClient({
     () => chapters.map((c) => c.chapter_id),
     [chapters]
   );
+
+  const nextChapterId = useMemo(() => {
+    const idx = orderedChapterIds.findIndex((x) => x === chapterId);
+    if (idx < 0) return null;
+    return idx < orderedChapterIds.length - 1 ? orderedChapterIds[idx + 1]! : null;
+  }, [chapterId, orderedChapterIds]);
 
   const chapterIdsKey = useMemo(() => orderedChapterIds.join("|"), [orderedChapterIds]);
 
@@ -666,19 +781,16 @@ export default function ReaderClient({
     el.style.setProperty("box-shadow", "0 0 0 2px hsl(var(--background)) inset", "important");
   }, []);
 
-  const maybeAutoScrollTo = useCallback((root: HTMLElement, el: HTMLElement) => {
-    // Keep the currently playing paragraph within the visible reader "page".
-    // Only scroll if it's near/outside the container viewport.
-    const rootRect = root.getBoundingClientRect();
-    const elRect = el.getBoundingClientRect();
+  const maybeAutoScrollTo = useCallback(
+    (_root: HTMLElement, el: HTMLElement) => {
+      if (!autoScrollToTopEnabled) return;
 
-    const margin = 56; // px
-    const above = elRect.top < rootRect.top + margin;
-    const below = elRect.bottom > rootRect.bottom - margin;
-    if (!above && !below) return;
-
-    el.scrollIntoView({ block: "center", behavior: "smooth" });
-  }, []);
+      // Bring the currently playing paragraph to the top so listeners don't have to scroll.
+      // Use smooth scrolling to avoid jarring jumps.
+      el.scrollIntoView({ block: "start", behavior: "smooth" });
+    },
+    [autoScrollToTopEnabled]
+  );
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -689,6 +801,15 @@ export default function ReaderClient({
     const onLoaded = () => {
       setDuration(Number.isFinite(audio.duration) ? audio.duration : 0);
       setCurrentTime(audio.currentTime);
+    };
+
+    const maybeAutoplay = () => {
+      if (!autoplay) return;
+      if (!audioUrl) return;
+      // Best-effort; browsers may block without user gesture.
+      void audio.play().catch(() => {
+        // ignore
+      });
     };
 
     const onTimeUpdate = () => {
@@ -713,7 +834,11 @@ export default function ReaderClient({
       if (pid) {
         const el = root.querySelector(`p[data-pid="${cssEscape(pid)}"]`);
         if (el instanceof HTMLElement) {
-          applyPlayingHighlight(el);
+          if (highlightParagraphEnabled) {
+            applyPlayingHighlight(el);
+          } else {
+            clearHighlight(el);
+          }
 
           // Auto-scroll while playing so the highlight stays in view.
           // Only run on pid changes (we're inside that guard already).
@@ -739,6 +864,7 @@ export default function ReaderClient({
     };
 
     const onWordUpdate = () => {
+      if (!highlightWordEnabled) return;
       if (!alignWordsByPid) return;
       if (segments.length === 0) return;
 
@@ -779,17 +905,30 @@ export default function ReaderClient({
     const onPlay = () => setIsPlaying(true);
     const onPause = () => setIsPlaying(false);
 
+    const onEnded = () => {
+      if (!autoAdvanceEnabled) return;
+      if (!nextChapterId) return;
+      router.push(
+        `/book/${encodeURIComponent(bookId)}/${encodeURIComponent(nextChapterId)}?autoplay=1`
+      );
+    };
+
     audio.addEventListener("loadedmetadata", onLoaded);
     audio.addEventListener("durationchange", onLoaded);
+    audio.addEventListener("loadedmetadata", maybeAutoplay);
     audio.addEventListener("timeupdate", onTimeUpdate);
     audio.addEventListener("timeupdate", onWordUpdate);
     audio.addEventListener("seeked", onTimeUpdate);
     audio.addEventListener("seeked", onWordUpdate);
     audio.addEventListener("play", onPlay);
     audio.addEventListener("pause", onPause);
+    audio.addEventListener("ended", onEnded);
 
     // Initialize state if metadata is already available.
-    if (audio.readyState >= 1) onLoaded();
+    if (audio.readyState >= 1) {
+      onLoaded();
+      maybeAutoplay();
+    }
     setIsPlaying(!audio.paused);
     setCurrentTime(audio.currentTime);
     setPlaybackRate(audio.playbackRate || 1);
@@ -797,12 +936,14 @@ export default function ReaderClient({
     return () => {
       audio.removeEventListener("loadedmetadata", onLoaded);
       audio.removeEventListener("durationchange", onLoaded);
+      audio.removeEventListener("loadedmetadata", maybeAutoplay);
       audio.removeEventListener("timeupdate", onTimeUpdate);
       audio.removeEventListener("timeupdate", onWordUpdate);
       audio.removeEventListener("seeked", onTimeUpdate);
       audio.removeEventListener("seeked", onWordUpdate);
       audio.removeEventListener("play", onPlay);
       audio.removeEventListener("pause", onPause);
+      audio.removeEventListener("ended", onEnded);
 
       // Clear any active highlight when leaving.
       const prevPid = highlightedPidRef.current;
@@ -822,14 +963,47 @@ export default function ReaderClient({
     };
   }, [
     alignWordsByPid,
+    autoAdvanceEnabled,
     applyPlayingHighlight,
     applyWordHighlight,
+    autoplay,
     audioUrl,
     clearHighlight,
     clearWordHighlight,
+    highlightParagraphEnabled,
+    highlightWordEnabled,
     maybeAutoScrollTo,
+    bookId,
+    nextChapterId,
+    router,
     segments
   ]);
+
+  useEffect(() => {
+    // If the user disables word highlighting, clear any active word span highlight.
+    if (highlightWordEnabled) return;
+    const root = containerRef.current;
+    if (!root) return;
+    const prevWordKey = highlightedWordKeyRef.current;
+    if (!prevWordKey) return;
+    const [prevWordPid, prevWidx] = prevWordKey.split(":");
+    const prevWordEl = root.querySelector(
+      `p[data-pid="${cssEscape(prevWordPid ?? "")}" ] span[data-widx="${cssEscape(prevWidx ?? "")}"]`
+    );
+    if (prevWordEl instanceof HTMLElement) clearWordHighlight(prevWordEl);
+    highlightedWordKeyRef.current = null;
+  }, [clearWordHighlight, highlightWordEnabled]);
+
+  useEffect(() => {
+    // If the user disables paragraph highlighting, clear any active paragraph highlight.
+    if (highlightParagraphEnabled) return;
+    const root = containerRef.current;
+    if (!root) return;
+    const prevPid = highlightedPidRef.current;
+    if (!prevPid) return;
+    const prevEl = root.querySelector(`p[data-pid="${cssEscape(prevPid)}"]`);
+    if (prevEl instanceof HTMLElement) clearHighlight(prevEl);
+  }, [clearHighlight, highlightParagraphEnabled]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -1004,6 +1178,70 @@ export default function ReaderClient({
               {alignStatus ? <span className="text-muted-foreground"> · {alignStatus}</span> : null}
             </div>
 
+            <div className="grid gap-2 rounded-xl bg-muted p-2">
+              <div className="text-xs font-medium text-muted-foreground">Playback</div>
+
+              <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                <span>Auto-advance</span>
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 rounded border border-input bg-background"
+                  checked={autoAdvanceEnabled}
+                  onChange={(e) => {
+                    const next = e.target.checked;
+                    setAutoAdvanceEnabled(next);
+                    writeBoolSetting(SETTINGS.autoAdvance, next);
+                  }}
+                />
+              </label>
+
+              <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                <span>Auto-scroll to top</span>
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 rounded border border-input bg-background"
+                  checked={autoScrollToTopEnabled}
+                  onChange={(e) => {
+                    const next = e.target.checked;
+                    setAutoScrollToTopEnabled(next);
+                    writeBoolSetting(SETTINGS.autoScroll, next);
+                  }}
+                />
+              </label>
+            </div>
+
+            <div className="grid gap-2 rounded-xl bg-muted p-2">
+              <div className="text-xs font-medium text-muted-foreground">Highlighting</div>
+
+              <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                <span>Paragraph</span>
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 rounded border border-input bg-background"
+                  checked={highlightParagraphEnabled}
+                  onChange={(e) => {
+                    const next = e.target.checked;
+                    setHighlightParagraphEnabled(next);
+                    writeBoolSetting(SETTINGS.highlightParagraph, next);
+                  }}
+                />
+              </label>
+
+              <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                <span>Word</span>
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 rounded border border-input bg-background"
+                  checked={highlightWordEnabled}
+                  onChange={(e) => {
+                    const next = e.target.checked;
+                    setHighlightWordEnabled(next);
+                    writeBoolSetting(SETTINGS.highlightWord, next);
+                  }}
+                />
+              </label>
+            </div>
+
           <div className="h-px bg-border/60" />
           {audioUrl ? (
             <>
@@ -1174,6 +1412,58 @@ export default function ReaderClient({
           />
         </section>
       </div>
+
+      {debugEnabled ? (
+        <div className="fixed bottom-4 right-4 z-50 w-[min(440px,calc(100vw-2rem))]">
+          <Card>
+            <CardContent className="space-y-2 p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-sm font-medium">Debug: Word Sync</div>
+                <div className="text-xs text-muted-foreground">Remove ?debug=1 to hide</div>
+              </div>
+
+              <div className="text-xs text-muted-foreground">
+                t={currentTime.toFixed(3)}s · dur={duration ? duration.toFixed(3) : "0.000"}s ·
+                rate={playbackRate} · playing={String(isPlaying)}
+              </div>
+
+              <div className="text-xs">
+                <div>
+                  <span className="text-muted-foreground">pid</span>: {debugPid ?? "(none)"}
+                  {debugSegment ? (
+                    <>
+                      <span className="text-muted-foreground"> · seg</span>: [
+                      {debugSegment.begin.toFixed(3)}–{debugSegment.end.toFixed(3)}]
+                    </>
+                  ) : null}
+                </div>
+                <div>
+                  <span className="text-muted-foreground">word</span>: {debugWord ? (
+                    <>
+                      #{debugWord.widx} “{debugWord.text}” [{debugWord.begin.toFixed(3)}–
+                      {debugWord.end.toFixed(3)}]
+                    </>
+                  ) : (
+                    "(none)"
+                  )}
+                </div>
+
+                <div className="text-muted-foreground">
+                  wordKeyRef={highlightedWordKeyRef.current ?? "(null)"} · pidRef=
+                  {highlightedPidRef.current ?? "(null)"}
+                </div>
+
+                <div className="text-muted-foreground">
+                  dom: p={String(debugDom?.hasParagraph ?? false)} · markup=
+                  {String(debugDom?.hasParagraph ? debugDom.hasMarkup : false)} · anySpans=
+                  {String(debugDom?.hasParagraph ? debugDom.hasAnyWordSpans : false)} · currentSpan=
+                  {String(debugDom?.hasParagraph ? debugDom.hasCurrentWordSpan : false)}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      ) : null}
 
     <Sheet
       open={Boolean(drawer)}

@@ -15,10 +15,12 @@ export default async function ChapterPage({
   searchParams
 }: {
   params: Promise<{ bookId: string; chapterId: string }>;
-  searchParams: Promise<{ pid?: string; t?: string }>;
+  searchParams: Promise<{ pid?: string; t?: string; debug?: string; autoplay?: string }>;
 }) {
   const { bookId, chapterId } = await params;
-  const { pid, t } = await searchParams;
+  const { pid, t, debug, autoplay } = await searchParams;
+  const debugEnabled = debug === "1" || debug === "true";
+  const autoplayEnabled = autoplay === "1" || autoplay === "true";
 
   const manifest = await getBookManifest(bookId);
   const orderedChapters = manifest.chapters
@@ -107,6 +109,8 @@ export default async function ChapterPage({
         audioUrl={content.audioUrl}
         initialPid={pid}
         initialTime={t ? Number(t) : undefined}
+        debug={debugEnabled}
+        autoplay={autoplayEnabled}
         chapters={orderedChapters.map((c) => ({
           chapter_id: c.chapter_id,
           title: c.title
