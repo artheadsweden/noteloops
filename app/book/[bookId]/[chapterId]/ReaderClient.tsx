@@ -943,8 +943,12 @@ export default function ReaderClient({
   const applyWordHighlight = useCallback((el: HTMLElement) => {
     el.setAttribute("data-word-playing", "true");
     // Very gentle word highlight; should not compete with paragraph highlight.
-    el.style.setProperty("background-color", "hsl(var(--primary) / 0.12)", "important");
-    el.style.setProperty("box-shadow", "0 0 0 2px hsl(var(--background)) inset", "important");
+    el.style.setProperty("background-color", "hsl(var(--reader-word-highlight-bg))", "important");
+    el.style.setProperty(
+      "box-shadow",
+      "0 0 0 2px hsl(var(--reader-word-highlight-ring)) inset",
+      "important"
+    );
   }, []);
 
   const maybeAutoScrollTo = useCallback(
