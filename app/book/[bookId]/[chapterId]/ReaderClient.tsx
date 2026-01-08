@@ -8,12 +8,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Gauge,
+  Headphones,
   List,
   LocateFixed,
   MessageSquare,
   Pause,
   Play,
   RotateCcw,
+  Settings,
   Send,
   Timer,
   Trash2,
@@ -313,6 +315,10 @@ export default function ReaderClient({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [playbackRate, setPlaybackRate] = useState(1);
+
+  const [listenMode, setListenMode] = useState(false);
+  const [listenChaptersOpen, setListenChaptersOpen] = useState(false);
+  const [listenSettingsOpen, setListenSettingsOpen] = useState(false);
 
   const debugEnabled = Boolean(debug);
 
@@ -1367,9 +1373,15 @@ export default function ReaderClient({
 
   return (
     <>
-      <div className="mt-6 grid gap-6 lg:grid-cols-[360px_1fr]">
-        <Card className="lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
-          <CardContent className="space-y-3 p-4">
+      <div
+        className={cn(
+          "mt-6 grid gap-6",
+          listenMode ? "grid-cols-1" : "lg:grid-cols-[360px_1fr]"
+        )}
+      >
+        {!listenMode ? (
+          <Card className="lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
+            <CardContent className="space-y-3 p-4">
             <div className="flex items-center justify-between">
               <div className="text-sm font-medium">Audio</div>
               <div className="text-xs text-muted-foreground">{audioUrl ? "Ready" : "No audio"}</div>
@@ -1377,6 +1389,19 @@ export default function ReaderClient({
             {audioNotice?.trim() ? (
               <div className="text-xs text-muted-foreground">{audioNotice.trim()}</div>
             ) : null}
+
+            <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+              <span className="inline-flex items-center gap-2">
+                <Headphones className="h-4 w-4" aria-hidden="true" />
+                Listen mode
+              </span>
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border border-input bg-background"
+                checked={listenMode}
+                onChange={(e) => setListenMode(e.target.checked)}
+              />
+            </label>
 
             <Collapsible defaultOpen>
               <div className="flex items-center justify-between rounded-xl bg-muted px-2 py-2">
@@ -1657,10 +1682,11 @@ export default function ReaderClient({
               </CollapsibleContent>
             </Collapsible>
           </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ) : null}
 
-        <section>
+        <section className={cn(listenMode ? "pb-28" : null)}>
           <div
             ref={containerRef}
             className="reader-prose prose prose-neutral dark:prose-invert mx-auto w-full max-w-[78ch] rounded-xl border bg-card p-4 leading-relaxed sm:p-6 lg:min-h-[calc(100vh-3rem)]"
@@ -1707,6 +1733,309 @@ export default function ReaderClient({
           </div>
         </section>
       </div>
+
+      {listenMode ? (
+        <>
+          <Sheet
+            open={listenChaptersOpen}
+            onOpenChange={(open) => {
+              setListenChaptersOpen(open);
+              if (open) setListenSettingsOpen(false);
+            }}
+          >
+            <SheetContent side="bottom" className="p-4">
+              <SheetHeader>
+                <SheetTitle>Chapters</SheetTitle>
+                <Button type="button" variant="outline" size="sm" onClick={() => setListenChaptersOpen(false)}>
+                  <X className="h-4 w-4" aria-hidden="true" />
+                  Close
+                </Button>
+              </SheetHeader>
+
+              <div className="mt-3 max-h-[60vh] overflow-auto rounded-xl bg-muted p-2">
+                <ol className="space-y-1 text-sm">
+                  {chapters.map((c) => {
+                    const isCurrent = c.chapter_id === chapterId;
+                    return (
+                      <li key={c.chapter_id}>
+                        <Link
+                          className={cn(
+                            "block rounded-lg px-2 py-1 underline underline-offset-4 hover:bg-accent hover:text-accent-foreground",
+                            isCurrent
+                              ? "bg-accent font-medium text-accent-foreground"
+                              : "text-muted-foreground"
+                          )}
+                          href={`/book/${encodeURIComponent(bookId)}/${encodeURIComponent(
+                            c.chapter_id
+                          )}`}
+                          aria-current={isCurrent ? "page" : undefined}
+                          onClick={() => setListenChaptersOpen(false)}
+                        >
+                          {c.title}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          <Sheet
+            open={listenSettingsOpen}
+            onOpenChange={(open) => {
+              setListenSettingsOpen(open);
+              if (open) setListenChaptersOpen(false);
+            }}
+          >
+            <SheetContent side="bottom" className="p-4">
+              <SheetHeader>
+                <SheetTitle>Settings</SheetTitle>
+                <Button type="button" variant="outline" size="sm" onClick={() => setListenSettingsOpen(false)}>
+                  <X className="h-4 w-4" aria-hidden="true" />
+                  Close
+                </Button>
+              </SheetHeader>
+
+              <div className="mt-4 grid gap-3">
+                <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                  <span className="inline-flex items-center gap-2">
+                    <Headphones className="h-4 w-4" aria-hidden="true" />
+                    Listen mode
+                  </span>
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border border-input bg-background"
+                    checked={listenMode}
+                    onChange={(e) => setListenMode(e.target.checked)}
+                  />
+                </label>
+
+                {audioNotice?.trim() ? (
+                  <div className="rounded-xl bg-muted p-3 text-sm text-muted-foreground">
+                    {audioNotice.trim()}
+                  </div>
+                ) : null}
+
+                <div className="rounded-xl bg-muted p-3">
+                  <div className="text-xs font-medium text-muted-foreground">Playback</div>
+                  <div className="mt-2 grid gap-2">
+                    <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                      <span>Auto-advance</span>
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border border-input bg-background"
+                        checked={autoAdvanceEnabled}
+                        onChange={(e) => {
+                          const next = e.target.checked;
+                          setAutoAdvanceEnabled(next);
+                          writeBoolSetting(SETTINGS.autoAdvance, next);
+                          void updateSupabaseUserSettings({ reader: { autoAdvance: next } });
+                        }}
+                      />
+                    </label>
+
+                    <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                      <span>Auto-scroll to top</span>
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border border-input bg-background"
+                        checked={autoScrollToTopEnabled}
+                        onChange={(e) => {
+                          const next = e.target.checked;
+                          setAutoScrollToTopEnabled(next);
+                          writeBoolSetting(SETTINGS.autoScroll, next);
+                          void updateSupabaseUserSettings({ reader: { autoScrollToTop: next } });
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="rounded-xl bg-muted p-3">
+                  <div className="text-xs font-medium text-muted-foreground">Highlighting</div>
+                  <div className="mt-2 grid gap-2">
+                    <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                      <span>Paragraph</span>
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border border-input bg-background"
+                        checked={highlightParagraphEnabled}
+                        onChange={(e) => {
+                          const next = e.target.checked;
+                          setHighlightParagraphEnabled(next);
+                          writeBoolSetting(SETTINGS.highlightParagraph, next);
+                          void updateSupabaseUserSettings({ reader: { highlightParagraph: next } });
+                        }}
+                      />
+                    </label>
+
+                    <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                      <span>Word</span>
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border border-input bg-background"
+                        checked={highlightWordEnabled}
+                        onChange={(e) => {
+                          const next = e.target.checked;
+                          setHighlightWordEnabled(next);
+                          writeBoolSetting(SETTINGS.highlightWord, next);
+                          void updateSupabaseUserSettings({ reader: { highlightWord: next } });
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="rounded-xl bg-muted p-3">
+                  <div className="text-xs font-medium text-muted-foreground">Player</div>
+                  <div className="mt-2 grid gap-2">
+                    <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                      <span className="inline-flex items-center gap-2">
+                        <Gauge className="h-4 w-4" aria-hidden="true" />
+                        Speed
+                      </span>
+                      <select
+                        className="h-9 rounded-lg border border-input bg-background px-2 py-1 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                        value={playbackRate}
+                        onChange={(e) => {
+                          const next = Number(e.target.value);
+                          if (!Number.isFinite(next) || next <= 0) return;
+                          setPlaybackRate(next);
+                          writeNumberSetting(SETTINGS.playbackRate, next);
+                          void updateSupabaseUserSettings({ reader: { playbackRate: next } });
+                        }}
+                      >
+                        {[0.75, 1, 1.25, 1.5, 2].map((r) => (
+                          <option key={r} value={r}>
+                            {r}x
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                      <span className="inline-flex items-center gap-2">
+                        <Timer className="h-4 w-4" aria-hidden="true" />
+                        Sleep
+                      </span>
+                      <select
+                        className="h-9 rounded-lg border border-input bg-background px-2 py-1 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                        value={sleepPresetSeconds}
+                        onChange={(e) => {
+                          const next = Number(e.target.value);
+                          if (!Number.isFinite(next) || next <= 0) {
+                            setSleepPresetSeconds(0);
+                            setSleepRemainingSeconds(null);
+                            sleepFadingRef.current = false;
+                            writeNumberSetting(SETTINGS.sleepPresetSeconds, 0);
+                            void updateSupabaseUserSettings({ reader: { sleepPresetSeconds: 0 } });
+                            return;
+                          }
+                          setSleepPresetSeconds(next);
+                          setSleepRemainingSeconds(next);
+                          sleepFadingRef.current = false;
+                          writeNumberSetting(SETTINGS.sleepPresetSeconds, next);
+                          void updateSupabaseUserSettings({ reader: { sleepPresetSeconds: next } });
+                        }}
+                      >
+                        <option value={0}>Off</option>
+                        <option value={10 * 60}>10m</option>
+                        <option value={15 * 60}>15m</option>
+                        <option value={30 * 60}>30m</option>
+                        <option value={60 * 60}>60m</option>
+                      </select>
+                    </label>
+
+                    {sleepRemainingSeconds !== null ? (
+                      <div className="text-xs text-muted-foreground">Sleep in {formatTime(sleepRemainingSeconds)}</div>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="grid gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={syncToAudio}
+                    disabled={!audioUrl || segments.length === 0 || !topVisiblePid}
+                  >
+                    <LocateFixed className="h-4 w-4" aria-hidden="true" />
+                    Sync to Audio
+                  </Button>
+
+                  {resumeProgress ? (
+                    <Button type="button" variant="outline" className="w-full" onClick={resume}>
+                      <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                      Resume
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border/60 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+            <div className="mx-auto w-full max-w-7xl px-4 py-3">
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={togglePlay}
+                    disabled={!audioUrl}
+                    aria-label={isPlaying ? "Pause" : "Play"}
+                  >
+                    {isPlaying ? (
+                      <Pause className="h-4 w-4" aria-hidden="true" />
+                    ) : (
+                      <Play className="h-4 w-4" aria-hidden="true" />
+                    )}
+                  </Button>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>{formatTime(currentTime)}</span>
+                      <span>{formatTime(duration)}</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={Math.max(0, duration)}
+                      step={0.1}
+                      value={Math.min(currentTime, duration || 0)}
+                      onChange={(e) => seekTo(Number(e.target.value))}
+                      disabled={!Number.isFinite(duration) || duration <= 0}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setListenChaptersOpen(true)}
+                    aria-label="Chapters"
+                  >
+                    <List className="h-4 w-4" aria-hidden="true" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setListenSettingsOpen(true)}
+                    aria-label="Settings"
+                  >
+                    <Settings className="h-4 w-4" aria-hidden="true" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      ) : null}
 
       {debugEnabled ? (
         <div className="fixed bottom-4 right-4 z-50 w-[min(440px,calc(100vw-2rem))]">
