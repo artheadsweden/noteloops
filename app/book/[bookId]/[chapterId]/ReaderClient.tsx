@@ -74,8 +74,9 @@ function formatTime(seconds: number): string {
 function findSegmentForTime(segments: AlignSegment[], t: number): AlignSegment | null {
   if (segments.length === 0) return null;
 
-  // Allow small gaps between segments without dropping highlight.
-  const GAP_TOL = 0.35; // seconds
+  // Paragraph highlighting UX: keep the previous paragraph highlighted through gaps
+  // until the next paragraph begins.
+  const GAP_TOL = 0.35; // seconds (used for near-edge snapping)
 
   let lo = 0;
   let hi = segments.length - 1;
@@ -103,6 +104,12 @@ function findSegmentForTime(segments: AlignSegment[], t: number): AlignSegment |
 
   const next = lo < segments.length ? segments[lo] : null;
   if (next && t >= next.begin - GAP_TOL) return next;
+
+  // If we're in a gap between two paragraphs, keep highlighting the previous one.
+  if (prev && next && t > prev.end && t < next.begin) return prev;
+
+  // After the last segment, keep the last paragraph highlighted.
+  if (prev && !next && t >= prev.end) return prev;
 
   return null;
 }
@@ -285,6 +292,7 @@ export default function ReaderClient({
   const highlightedPidRef = useRef<string | null>(null);
   const highlightedWordKeyRef = useRef<string | null>(null);
   const wrappedPidsRef = useRef<Set<string>>(new Set());
+  const pseudoWordsByPidRef = useRef<Record<string, AlignWord[]>>({});
   const baseProgressRef = useRef<ProgressDraft | null>(null);
   const lastAutoScrollPidRef = useRef<string | null>(null);
 
@@ -440,6 +448,12 @@ export default function ReaderClient({
     [alignSegments]
   );
 
+  const segmentByPid = useMemo(() => {
+    const m = new Map<string, AlignSegment>();
+    for (const s of segments) m.set(s.pid, s);
+    return m;
+  }, [segments]);
+
   const debugSegment = useMemo(() => {
     if (!debugEnabled) return null;
     return findSegmentForTime(segments, currentTime);
@@ -499,12 +513,46 @@ export default function ReaderClient({
 
     // Reset lazy word-wrapping cache when chapter HTML changes.
     wrappedPidsRef.current = new Set();
+    pseudoWordsByPidRef.current = {};
     setHtmlNonce((n) => n + 1);
   }, [alignWordsByPid, html]);
 
+  const buildPseudoWordsForParagraph = useCallback(
+    (pid: string, seg: AlignSegment, paragraphText: string): AlignWord[] => {
+      const tokens: Array<{ text: string; start: number; end: number }> = [];
+      const re = /\S+/g;
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(paragraphText))) {
+        const text = m[0] ?? "";
+        const start = m.index;
+        const end = start + text.length;
+        if (text.trim().length === 0) continue;
+        tokens.push({ text, start, end });
+      }
+
+      const n = tokens.length;
+      if (n === 0) return [];
+
+      const span = Math.max(0.001, seg.end - seg.begin);
+      return tokens.map((tok, i) => {
+        const begin = seg.begin + (i / n) * span;
+        const end = seg.begin + ((i + 1) / n) * span;
+        return {
+          pid,
+          widx: i,
+          text: tok.text,
+          start_char: tok.start,
+          end_char: tok.end,
+          begin,
+          end
+        };
+      });
+    },
+    []
+  );
+
   const ensureWordSpansForPid = useCallback(
     (pid: string) => {
-      if (!alignWordsByPid) return;
       if (!highlightWordEnabled) return;
 
       const already = wrappedPidsRef.current.has(pid);
@@ -513,20 +561,36 @@ export default function ReaderClient({
       const root = containerRef.current;
       if (!root) return;
 
-      const words = alignWordsByPid[pid];
-      if (!words || words.length === 0) {
-        wrappedPidsRef.current.add(pid);
-        return;
-      }
-
       const p = root.querySelector(`p[data-pid="${cssEscape(pid)}"]`);
       if (p instanceof HTMLElement) {
-        wrapWordsInParagraph(p, pid, words);
+        const wordsFromAlign = alignWordsByPid?.[pid];
+        let words: AlignWord[] | undefined = wordsFromAlign;
+
+        // If the alignment file doesn't contain word-level data, fall back to a
+        // best-effort timeline computed from paragraph text and segment timing.
+        if (!words || words.length === 0) {
+          const existing = pseudoWordsByPidRef.current[pid];
+          if (existing) {
+            words = existing;
+          } else {
+            const seg = segmentByPid.get(pid);
+            if (seg) {
+              const text = p.textContent ?? "";
+              const pseudo = buildPseudoWordsForParagraph(pid, seg, text);
+              pseudoWordsByPidRef.current[pid] = pseudo;
+              words = pseudo;
+            }
+          }
+        }
+
+        if (words && words.length > 0) {
+          wrapWordsInParagraph(p, pid, words);
+        }
       }
 
       wrappedPidsRef.current.add(pid);
     },
-    [alignWordsByPid, highlightWordEnabled]
+    [alignWordsByPid, buildPseudoWordsForParagraph, highlightWordEnabled, segmentByPid]
   );
 
   const orderedChapterIds = useMemo(
@@ -912,7 +976,6 @@ export default function ReaderClient({
 
     const onWordUpdate = () => {
       if (!highlightWordEnabled) return;
-      if (!alignWordsByPid) return;
       if (segments.length === 0) return;
 
       const root = containerRef.current;
@@ -924,7 +987,7 @@ export default function ReaderClient({
 
       ensureWordSpansForPid(pid);
 
-      const words = alignWordsByPid[pid];
+      const words = alignWordsByPid?.[pid] ?? pseudoWordsByPidRef.current[pid];
       if (!words || words.length === 0) return;
 
       const w = findWordForTime(words, audio.currentTime);
