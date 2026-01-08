@@ -10,6 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+function toPublicInputUrl(bookId: string, assetPath: string): string {
+  return `/input/${encodeURIComponent(bookId)}/${assetPath
+    .split("/")
+    .map(encodeURIComponent)
+    .join("/")}`;
+}
+
 export default async function ExtrasPage({
   params
 }: {
@@ -79,6 +86,17 @@ export default async function ExtrasPage({
                     </div>
                     {rec.description ? (
                       <p className="mt-2 text-sm text-muted-foreground">{rec.description}</p>
+                    ) : null}
+
+                    {rec.image ? (
+                      <div className="mt-4 overflow-hidden rounded-lg border border-border/60 bg-muted">
+                        <img
+                          src={toPublicInputUrl(manifest.book_id, rec.image)}
+                          alt={rec.image_alt ?? rec.title}
+                          className="h-auto w-full"
+                          loading="lazy"
+                        />
+                      </div>
                     ) : null}
 
                     {rec.mentioned_in_chapter_id ? (
