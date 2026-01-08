@@ -5,7 +5,7 @@ import path from "node:path";
 
 import { notFound } from "next/navigation";
 
-import { AlignFileSchema, type AlignSegment } from "@/services/input/align";
+import { AlignFileSchema, type AlignSegment, type AlignWord } from "@/services/input/align";
 import { getBookManifest } from "@/services/input/books";
 import { getBookDirAbsolute } from "@/services/input/paths";
 
@@ -68,6 +68,7 @@ export type ChapterContent = {
   chapter: ChapterDescriptor;
   html: string;
   alignSegments: AlignSegment[];
+  alignWordsByPid?: Record<string, AlignWord[]>;
   alignStatus?: string;
   audioUrl?: string;
 };
@@ -84,13 +85,47 @@ export async function getChapterContent(
   const html = await fs.readFile(htmlPath, "utf-8");
 
   let alignSegments: AlignSegment[] = [];
+  let alignWordsByPid: Record<string, AlignWord[]> | undefined;
   let alignStatus: string | undefined;
   if (await fileExists(alignPath)) {
     const rawAlign = await fs.readFile(alignPath, "utf-8");
     const parsedAlign = JSON.parse(rawAlign) as unknown;
     const alignFile = AlignFileSchema.parse(parsedAlign);
     alignStatus = alignFile.status;
+
     alignSegments = (alignFile.segments ?? []).slice().sort((a, b) => a.begin - b.begin);
+
+    const words = (alignFile.words ?? []).slice();
+    if (words.length > 0) {
+      const byPid: Record<string, AlignWord[]> = {};
+      for (const w of words) {
+        (byPid[w.pid] ??= []).push(w);
+      }
+      for (const pid of Object.keys(byPid)) {
+        byPid[pid]!.sort((a, b) => (a.begin - b.begin) || (a.widx - b.widx));
+      }
+      alignWordsByPid = byPid;
+
+      // If paragraph-level timings disagree with word-level timings, prefer words.
+      // This improves paragraph sync when the upstream pipeline is still being tuned.
+      const normalized: AlignSegment[] = [];
+      for (const seg of alignSegments) {
+        const ws = byPid[seg.pid];
+        if (!ws || ws.length === 0) {
+          normalized.push(seg);
+          continue;
+        }
+        const wordBegin = ws[0]!.begin;
+        const wordEnd = ws[ws.length - 1]!.end;
+
+        // Use a small tolerance to avoid micro-adjustments.
+        const tol = 0.25;
+        const begin = Math.abs(seg.begin - wordBegin) > tol ? wordBegin : seg.begin;
+        const end = Math.abs(seg.end - wordEnd) > tol ? wordEnd : seg.end;
+        normalized.push({ pid: seg.pid, begin, end });
+      }
+      alignSegments = normalized.sort((a, b) => a.begin - b.begin);
+    }
   }
 
   let audioUrl: string | undefined;
@@ -111,5 +146,5 @@ export async function getChapterContent(
     }
   }
 
-  return { chapter, html, alignSegments, alignStatus, audioUrl };
+  return { chapter, html, alignSegments, alignWordsByPid, alignStatus, audioUrl };
 }

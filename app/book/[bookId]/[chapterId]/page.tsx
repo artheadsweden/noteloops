@@ -102,6 +102,7 @@ export default async function ChapterPage({
         chapterId={chapterId}
         html={content.html}
         alignSegments={content.alignSegments}
+        alignWordsByPid={content.alignWordsByPid}
         alignStatus={content.alignStatus}
         audioUrl={content.audioUrl}
         initialPid={pid}

@@ -26,7 +26,7 @@ import {
   SheetTitle
 } from "@/components/ui/sheet";
 
-import type { AlignSegment } from "@/services/input/align";
+import type { AlignSegment, AlignWord } from "@/services/input/align";
 import { getLocalProgress, getSupabaseProgress, saveProgress } from "@/services/progress";
 import {
   addChapterFeedback,
@@ -87,6 +87,103 @@ function findSegmentForTime(segments: AlignSegment[], t: number): AlignSegment |
   return null;
 }
 
+function findWordForTime(words: AlignWord[], t: number): AlignWord | null {
+  if (words.length === 0) return null;
+
+  let lo = 0;
+  let hi = words.length - 1;
+
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    const w = words[mid]!;
+
+    if (t < w.begin) {
+      hi = mid - 1;
+      continue;
+    }
+    if (t >= w.end) {
+      lo = mid + 1;
+      continue;
+    }
+    return w;
+  }
+
+  return null;
+}
+
+function getTextNodesInOrder(root: Node): Text[] {
+  const out: Text[] = [];
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  let cur = walker.nextNode();
+  while (cur) {
+    if (cur.nodeType === Node.TEXT_NODE) out.push(cur as Text);
+    cur = walker.nextNode();
+  }
+  return out;
+}
+
+function resolveTextNodeAtChar(nodes: Text[], charIndex: number): { node: Text; offset: number } | null {
+  let acc = 0;
+  for (const node of nodes) {
+    const len = node.nodeValue?.length ?? 0;
+    if (charIndex <= acc + len) {
+      return { node, offset: Math.max(0, Math.min(len, charIndex - acc)) };
+    }
+    acc += len;
+  }
+  if (nodes.length > 0) {
+    const last = nodes[nodes.length - 1]!;
+    const len = last.nodeValue?.length ?? 0;
+    return { node: last, offset: len };
+  }
+  return null;
+}
+
+function canSafelyWrapWords(p: HTMLElement): boolean {
+  // Char offsets are computed from plain paragraph text. If the paragraph contains
+  // inline markup, offsets may not map 1:1 and wrapping can break the DOM.
+  return p.querySelector("*") === null;
+}
+
+function wrapWordsInParagraph(p: HTMLElement, pid: string, words: AlignWord[]): void {
+  if (!canSafelyWrapWords(p)) return;
+  if (p.querySelector("span[data-widx]")) return;
+
+  const textNodes = getTextNodesInOrder(p);
+  if (textNodes.length === 0) return;
+
+  const totalLen = p.textContent?.length ?? 0;
+  if (totalLen === 0) return;
+
+  // Wrap from the end so earlier offsets stay stable.
+  const sorted = [...words].sort((a, b) => b.start_char - a.start_char);
+  for (const w of sorted) {
+    const startChar = Math.max(0, Math.min(totalLen, w.start_char));
+    const endChar = Math.max(startChar, Math.min(totalLen, w.end_char));
+    if (endChar <= startChar) continue;
+
+    const start = resolveTextNodeAtChar(textNodes, startChar);
+    const end = resolveTextNodeAtChar(textNodes, endChar);
+    if (!start || !end) continue;
+
+    try {
+      const range = document.createRange();
+      range.setStart(start.node, start.offset);
+      range.setEnd(end.node, end.offset);
+
+      const span = document.createElement("span");
+      span.setAttribute("data-pid", pid);
+      span.setAttribute("data-widx", String(w.widx));
+      span.style.borderRadius = "0.25rem";
+
+      range.surroundContents(span);
+    } catch {
+      // If we can't wrap cleanly, skip word wrapping for this paragraph.
+      return;
+    }
+  }
+}
+
 function cssEscape(value: string): string {
   // Safari/older browsers: CSS.escape may not exist.
   // This is sufficient for our pid values like "p001".
@@ -137,6 +234,7 @@ export default function ReaderClient({
   chapterId,
   html,
   alignSegments,
+  alignWordsByPid,
   alignStatus,
   audioUrl,
   initialPid,
@@ -147,6 +245,7 @@ export default function ReaderClient({
   chapterId: string;
   html: string;
   alignSegments: AlignSegment[];
+  alignWordsByPid?: Record<string, AlignWord[]>;
   alignStatus?: string;
   audioUrl?: string;
   initialPid?: string;
@@ -156,6 +255,7 @@ export default function ReaderClient({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const highlightedPidRef = useRef<string | null>(null);
+  const highlightedWordKeyRef = useRef<string | null>(null);
   const baseProgressRef = useRef<ProgressDraft | null>(null);
   const lastAutoScrollPidRef = useRef<string | null>(null);
 
@@ -274,8 +374,19 @@ export default function ReaderClient({
     // Important: avoid React continuously re-applying dangerouslySetInnerHTML on every
     // state update, which can replace the paragraph DOM nodes and "blink" styles.
     root.innerHTML = html;
+
+    // Word-level highlighting: wrap words with <span data-widx="..."> when possible.
+    // This is best-effort and skips paragraphs with existing inline markup.
+    if (alignWordsByPid) {
+      for (const [pid, words] of Object.entries(alignWordsByPid)) {
+        if (!words || words.length === 0) continue;
+        const p = root.querySelector(`p[data-pid="${cssEscape(pid)}"]`);
+        if (!(p instanceof HTMLElement)) continue;
+        wrapWordsInParagraph(p, pid, words);
+      }
+    }
     setHtmlNonce((n) => n + 1);
-  }, [html]);
+  }, [alignWordsByPid, html]);
 
   const orderedChapterIds = useMemo(
     () => chapters.map((c) => c.chapter_id),
@@ -542,6 +653,19 @@ export default function ReaderClient({
     el.style.setProperty("outline-offset", "", "important");
   }, []);
 
+  const clearWordHighlight = useCallback((el: HTMLElement) => {
+    el.removeAttribute("data-word-playing");
+    el.style.removeProperty("background-color");
+    el.style.removeProperty("box-shadow");
+  }, []);
+
+  const applyWordHighlight = useCallback((el: HTMLElement) => {
+    el.setAttribute("data-word-playing", "true");
+    // Very gentle word highlight; should not compete with paragraph highlight.
+    el.style.setProperty("background-color", "hsl(var(--primary) / 0.12)", "important");
+    el.style.setProperty("box-shadow", "0 0 0 2px hsl(var(--background)) inset", "important");
+  }, []);
+
   const maybeAutoScrollTo = useCallback((root: HTMLElement, el: HTMLElement) => {
     // Keep the currently playing paragraph within the visible reader "page".
     // Only scroll if it's near/outside the container viewport.
@@ -600,7 +724,56 @@ export default function ReaderClient({
         }
       }
 
+      // Paragraph changed → clear word highlight so we don't leave stale spans highlighted.
+      const prevWordKey = highlightedWordKeyRef.current;
+      if (prevWordKey) {
+        const [prevWordPid, prevWidx] = prevWordKey.split(":");
+        const prevWordEl = root.querySelector(
+          `p[data-pid="${cssEscape(prevWordPid ?? "")}"] span[data-widx="${cssEscape(prevWidx ?? "")}"]`
+        );
+        if (prevWordEl instanceof HTMLElement) clearWordHighlight(prevWordEl);
+        highlightedWordKeyRef.current = null;
+      }
+
       highlightedPidRef.current = pid;
+    };
+
+    const onWordUpdate = () => {
+      if (!alignWordsByPid) return;
+      if (segments.length === 0) return;
+
+      const root = containerRef.current;
+      if (!root) return;
+
+      const seg = findSegmentForTime(segments, audio.currentTime);
+      const pid = seg?.pid;
+      if (!pid) return;
+
+      const words = alignWordsByPid[pid];
+      if (!words || words.length === 0) return;
+
+      const w = findWordForTime(words, audio.currentTime);
+      if (!w) return;
+
+      const key = `${pid}:${w.widx}`;
+      if (key === highlightedWordKeyRef.current) return;
+
+      const prevKey = highlightedWordKeyRef.current;
+      if (prevKey) {
+        const [prevPid, prevWidx] = prevKey.split(":");
+        const prevEl = root.querySelector(
+          `p[data-pid="${cssEscape(prevPid ?? "")}"] span[data-widx="${cssEscape(prevWidx ?? "")}"]`
+        );
+        if (prevEl instanceof HTMLElement) clearWordHighlight(prevEl);
+      }
+
+      const nextEl = root.querySelector(
+        `p[data-pid="${cssEscape(pid)}"] span[data-widx="${String(w.widx)}"]`
+      );
+      if (nextEl instanceof HTMLElement) {
+        applyWordHighlight(nextEl);
+        highlightedWordKeyRef.current = key;
+      }
     };
 
     const onPlay = () => setIsPlaying(true);
@@ -609,7 +782,9 @@ export default function ReaderClient({
     audio.addEventListener("loadedmetadata", onLoaded);
     audio.addEventListener("durationchange", onLoaded);
     audio.addEventListener("timeupdate", onTimeUpdate);
+    audio.addEventListener("timeupdate", onWordUpdate);
     audio.addEventListener("seeked", onTimeUpdate);
+    audio.addEventListener("seeked", onWordUpdate);
     audio.addEventListener("play", onPlay);
     audio.addEventListener("pause", onPause);
 
@@ -623,7 +798,9 @@ export default function ReaderClient({
       audio.removeEventListener("loadedmetadata", onLoaded);
       audio.removeEventListener("durationchange", onLoaded);
       audio.removeEventListener("timeupdate", onTimeUpdate);
+      audio.removeEventListener("timeupdate", onWordUpdate);
       audio.removeEventListener("seeked", onTimeUpdate);
+      audio.removeEventListener("seeked", onWordUpdate);
       audio.removeEventListener("play", onPlay);
       audio.removeEventListener("pause", onPause);
 
@@ -633,8 +810,26 @@ export default function ReaderClient({
         const prevEl = rootForCleanup.querySelector(`p[data-pid="${cssEscape(prevPid)}"]`);
         if (prevEl instanceof HTMLElement) clearHighlight(prevEl);
       }
+
+      const prevWordKey = highlightedWordKeyRef.current;
+      if (rootForCleanup && prevWordKey) {
+        const [prevWordPid, prevWidx] = prevWordKey.split(":");
+        const prevWordEl = rootForCleanup.querySelector(
+          `p[data-pid="${cssEscape(prevWordPid ?? "")}"] span[data-widx="${cssEscape(prevWidx ?? "")}"]`
+        );
+        if (prevWordEl instanceof HTMLElement) clearWordHighlight(prevWordEl);
+      }
     };
-  }, [applyPlayingHighlight, audioUrl, clearHighlight, maybeAutoScrollTo, segments]);
+  }, [
+    alignWordsByPid,
+    applyPlayingHighlight,
+    applyWordHighlight,
+    audioUrl,
+    clearHighlight,
+    clearWordHighlight,
+    maybeAutoScrollTo,
+    segments
+  ]);
 
   useEffect(() => {
     const audio = audioRef.current;
