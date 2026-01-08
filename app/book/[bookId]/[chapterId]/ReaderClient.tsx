@@ -74,6 +74,9 @@ function formatTime(seconds: number): string {
 function findSegmentForTime(segments: AlignSegment[], t: number): AlignSegment | null {
   if (segments.length === 0) return null;
 
+  // Allow small gaps between segments without dropping highlight.
+  const GAP_TOL = 0.35; // seconds
+
   let lo = 0;
   let hi = segments.length - 1;
 
@@ -94,11 +97,21 @@ function findSegmentForTime(segments: AlignSegment[], t: number): AlignSegment |
     return s;
   }
 
+  // Not within any segment: snap to nearest segment if we're within a small gap.
+  const prev = hi >= 0 ? segments[hi] : null;
+  if (prev && t < prev.end + GAP_TOL) return prev;
+
+  const next = lo < segments.length ? segments[lo] : null;
+  if (next && t >= next.begin - GAP_TOL) return next;
+
   return null;
 }
 
 function findWordForTime(words: AlignWord[], t: number): AlignWord | null {
   if (words.length === 0) return null;
+
+  // Allow tiny gaps between words without constantly clearing/re-setting highlight.
+  const GAP_TOL = 0.12; // seconds
 
   let lo = 0;
   let hi = words.length - 1;
@@ -117,6 +130,12 @@ function findWordForTime(words: AlignWord[], t: number): AlignWord | null {
     }
     return w;
   }
+
+  const prev = hi >= 0 ? words[hi] : null;
+  if (prev && t < prev.end + GAP_TOL) return prev;
+
+  const next = lo < words.length ? words[lo] : null;
+  if (next && t >= next.begin - GAP_TOL) return next;
 
   return null;
 }
@@ -149,14 +168,7 @@ function resolveTextNodeAtChar(nodes: Text[], charIndex: number): { node: Text; 
   return null;
 }
 
-function canSafelyWrapWords(p: HTMLElement): boolean {
-  // Char offsets are computed from plain paragraph text. If the paragraph contains
-  // inline markup, offsets may not map 1:1 and wrapping can break the DOM.
-  return p.querySelector("*") === null;
-}
-
 function wrapWordsInParagraph(p: HTMLElement, pid: string, words: AlignWord[]): void {
-  if (!canSafelyWrapWords(p)) return;
   if (p.querySelector("span[data-widx]")) return;
 
   const textNodes = getTextNodesInOrder(p);
@@ -188,8 +200,8 @@ function wrapWordsInParagraph(p: HTMLElement, pid: string, words: AlignWord[]): 
 
       range.surroundContents(span);
     } catch {
-      // If we can't wrap cleanly, skip word wrapping for this paragraph.
-      return;
+      // If we can't wrap cleanly for this word (often due to inline markup), skip it.
+      continue;
     }
   }
 }
@@ -272,6 +284,7 @@ export default function ReaderClient({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const highlightedPidRef = useRef<string | null>(null);
   const highlightedWordKeyRef = useRef<string | null>(null);
+  const wrappedPidsRef = useRef<Set<string>>(new Set());
   const baseProgressRef = useRef<ProgressDraft | null>(null);
   const lastAutoScrollPidRef = useRef<string | null>(null);
 
@@ -484,18 +497,37 @@ export default function ReaderClient({
     // state update, which can replace the paragraph DOM nodes and "blink" styles.
     root.innerHTML = html;
 
-    // Word-level highlighting: wrap words with <span data-widx="..."> when possible.
-    // This is best-effort and skips paragraphs with existing inline markup.
-    if (alignWordsByPid) {
-      for (const [pid, words] of Object.entries(alignWordsByPid)) {
-        if (!words || words.length === 0) continue;
-        const p = root.querySelector(`p[data-pid="${cssEscape(pid)}"]`);
-        if (!(p instanceof HTMLElement)) continue;
-        wrapWordsInParagraph(p, pid, words);
-      }
-    }
+    // Reset lazy word-wrapping cache when chapter HTML changes.
+    wrappedPidsRef.current = new Set();
     setHtmlNonce((n) => n + 1);
   }, [alignWordsByPid, html]);
+
+  const ensureWordSpansForPid = useCallback(
+    (pid: string) => {
+      if (!alignWordsByPid) return;
+      if (!highlightWordEnabled) return;
+
+      const already = wrappedPidsRef.current.has(pid);
+      if (already) return;
+
+      const root = containerRef.current;
+      if (!root) return;
+
+      const words = alignWordsByPid[pid];
+      if (!words || words.length === 0) {
+        wrappedPidsRef.current.add(pid);
+        return;
+      }
+
+      const p = root.querySelector(`p[data-pid="${cssEscape(pid)}"]`);
+      if (p instanceof HTMLElement) {
+        wrapWordsInParagraph(p, pid, words);
+      }
+
+      wrappedPidsRef.current.add(pid);
+    },
+    [alignWordsByPid, highlightWordEnabled]
+  );
 
   const orderedChapterIds = useMemo(
     () => chapters.map((c) => c.chapter_id),
@@ -823,7 +855,18 @@ export default function ReaderClient({
       const seg = findSegmentForTime(segments, audio.currentTime);
       const pid = seg?.pid ?? null;
 
-      if (pid === highlightedPidRef.current) return;
+      const rootPid = highlightedPidRef.current;
+      if (pid === rootPid) {
+        // If we already tracked this pid but the DOM highlight was cleared due to
+        // a toggle or transient state, re-apply it.
+        if (pid && highlightParagraphEnabled) {
+          const el = root.querySelector(`p[data-pid="${cssEscape(pid)}"]`);
+          if (el instanceof HTMLElement && el.getAttribute("data-playing") !== "true") {
+            applyPlayingHighlight(el);
+          }
+        }
+        return;
+      }
 
       const prevPid = highlightedPidRef.current;
       if (prevPid) {
@@ -846,6 +889,10 @@ export default function ReaderClient({
             lastAutoScrollPidRef.current = pid;
             maybeAutoScrollTo(root, el);
           }
+
+          // Lazily wrap word spans for the active paragraph so word highlighting can work
+          // without doing a huge up-front DOM rewrite.
+          ensureWordSpansForPid(pid);
         }
       }
 
@@ -874,6 +921,8 @@ export default function ReaderClient({
       const seg = findSegmentForTime(segments, audio.currentTime);
       const pid = seg?.pid;
       if (!pid) return;
+
+      ensureWordSpansForPid(pid);
 
       const words = alignWordsByPid[pid];
       if (!words || words.length === 0) return;
@@ -972,6 +1021,7 @@ export default function ReaderClient({
     clearWordHighlight,
     highlightParagraphEnabled,
     highlightWordEnabled,
+    ensureWordSpansForPid,
     maybeAutoScrollTo,
     bookId,
     nextChapterId,
@@ -987,10 +1037,14 @@ export default function ReaderClient({
     const prevWordKey = highlightedWordKeyRef.current;
     if (!prevWordKey) return;
     const [prevWordPid, prevWidx] = prevWordKey.split(":");
-    const prevWordEl = root.querySelector(
-      `p[data-pid="${cssEscape(prevWordPid ?? "")}" ] span[data-widx="${cssEscape(prevWidx ?? "")}"]`
-    );
-    if (prevWordEl instanceof HTMLElement) clearWordHighlight(prevWordEl);
+    try {
+      const prevWordEl = root.querySelector(
+        `p[data-pid="${cssEscape(prevWordPid ?? "")}"] span[data-widx="${cssEscape(prevWidx ?? "")}"]`
+      );
+      if (prevWordEl instanceof HTMLElement) clearWordHighlight(prevWordEl);
+    } catch {
+      // ignore
+    }
     highlightedWordKeyRef.current = null;
   }, [clearWordHighlight, highlightWordEnabled]);
 
