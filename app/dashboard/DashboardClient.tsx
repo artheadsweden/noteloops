@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Download, Search } from "lucide-react";
+import { ArrowRight, Download, Search, Sparkles } from "lucide-react";
 
 import PageShell from "@/components/layout/PageShell";
 import EmptyState from "@/components/EmptyState";
@@ -217,12 +217,20 @@ export default function DashboardClient({ manifests }: { manifests: BookManifest
                       <CardTitle className="text-base leading-tight">{titleFromSlug(m.book_id)}</CardTitle>
                       <CardDescription>{m.chapters.length} chapters</CardDescription>
                     </div>
-                    <Button asChild variant="outline" size="sm" className="shrink-0">
-                      <Link href={`/book/${encodeURIComponent(m.book_id)}`}>
-                        Open
-                        <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                      </Link>
-                    </Button>
+                    <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                      <Button asChild variant="outline" size="sm">
+                        <Link href={`/book/${encodeURIComponent(m.book_id)}/extras`}>
+                          <Sparkles className="h-4 w-4" aria-hidden="true" />
+                          Extras
+                        </Link>
+                      </Button>
+                      <Button asChild variant="outline" size="sm">
+                        <Link href={`/book/${encodeURIComponent(m.book_id)}`}>
+                          Open
+                          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                        </Link>
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
 
