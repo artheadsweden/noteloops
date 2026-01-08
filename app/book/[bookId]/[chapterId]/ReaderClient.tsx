@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Gauge,
   List,
   LocateFixed,
@@ -672,6 +674,12 @@ export default function ReaderClient({
     const idx = orderedChapterIds.findIndex((x) => x === chapterId);
     if (idx < 0) return null;
     return idx < orderedChapterIds.length - 1 ? orderedChapterIds[idx + 1]! : null;
+  }, [chapterId, orderedChapterIds]);
+
+  const prevChapterId = useMemo(() => {
+    const idx = orderedChapterIds.findIndex((x) => x === chapterId);
+    if (idx < 0) return null;
+    return idx > 0 ? orderedChapterIds[idx - 1]! : null;
   }, [chapterId, orderedChapterIds]);
 
   const chapterIdsKey = useMemo(() => orderedChapterIds.join("|"), [orderedChapterIds]);
@@ -1656,6 +1664,46 @@ export default function ReaderClient({
             ref={containerRef}
             className="reader-prose prose prose-neutral dark:prose-invert mx-auto w-full max-w-[78ch] rounded-xl border bg-card p-4 leading-relaxed sm:p-6 lg:min-h-[calc(100vh-3rem)]"
           />
+
+          <div className="mx-auto mt-4 w-full max-w-[78ch]">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
+              {prevChapterId ? (
+                <Button asChild variant="outline" className="justify-start">
+                  <Link
+                    href={`/book/${encodeURIComponent(bookId)}/${encodeURIComponent(
+                      prevChapterId
+                    )}`}
+                  >
+                    <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                    Previous chapter
+                  </Link>
+                </Button>
+              ) : (
+                <Button variant="outline" className="justify-start" disabled>
+                  <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                  Previous chapter
+                </Button>
+              )}
+
+              {nextChapterId ? (
+                <Button asChild variant="outline" className="justify-end">
+                  <Link
+                    href={`/book/${encodeURIComponent(bookId)}/${encodeURIComponent(
+                      nextChapterId
+                    )}`}
+                  >
+                    Next chapter
+                    <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                  </Link>
+                </Button>
+              ) : (
+                <Button variant="outline" className="justify-end" disabled>
+                  Next chapter
+                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                </Button>
+              )}
+            </div>
+          </div>
         </section>
       </div>
 
