@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { BookOpen, LogIn, LogOut, Shield, User } from "lucide-react";
+import { BookOpen, BookText, LogIn, LogOut, Shield, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -146,6 +146,7 @@ export default function HeaderNav() {
         }
       >
         <Link href="/guide">
+          <BookText className="h-4 w-4" aria-hidden="true" />
           <span>Guide</span>
         </Link>
       </Button>
