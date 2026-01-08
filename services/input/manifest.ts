@@ -20,6 +20,9 @@ export const BookManifestSchema = z.object({
   schema_version: z.number().int().positive().optional(),
   book_id: z.string().min(1),
   cover_image: z.string().min(1).optional(),
+  // Optional disclaimer / notice shown in the audio player UI.
+  // If omitted, nothing is shown.
+  audio_notice: z.string().min(1).optional(),
   // Optional book descriptions.
   // - summary_short: shown in the library card
   // - summary_long: shown on the book page

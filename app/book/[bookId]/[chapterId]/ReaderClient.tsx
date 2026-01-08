@@ -272,6 +272,7 @@ export default function ReaderClient({
   alignSegments,
   alignWordsByPid,
   alignStatus,
+  audioNotice,
   audioUrl,
   initialPid,
   initialTime,
@@ -285,6 +286,7 @@ export default function ReaderClient({
   alignSegments: AlignSegment[];
   alignWordsByPid?: Record<string, AlignWord[]>;
   alignStatus?: string;
+  audioNotice?: string;
   audioUrl?: string;
   initialPid?: string;
   initialTime?: number;
@@ -1372,10 +1374,9 @@ export default function ReaderClient({
               <div className="text-sm font-medium">Audio</div>
               <div className="text-xs text-muted-foreground">{audioUrl ? "Ready" : "No audio"}</div>
             </div>
-            <div className="text-xs text-muted-foreground">
-              Alignment: {segments.length} segments
-              {alignStatus ? <span className="text-muted-foreground"> · {alignStatus}</span> : null}
-            </div>
+            {audioNotice?.trim() ? (
+              <div className="text-xs text-muted-foreground">{audioNotice.trim()}</div>
+            ) : null}
 
             <Collapsible defaultOpen>
               <div className="flex items-center justify-between rounded-xl bg-muted px-2 py-2">

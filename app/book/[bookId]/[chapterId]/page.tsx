@@ -106,6 +106,7 @@ export default async function ChapterPage({
         alignSegments={content.alignSegments}
         alignWordsByPid={content.alignWordsByPid}
         alignStatus={content.alignStatus}
+        audioNotice={manifest.audio_notice}
         audioUrl={content.audioUrl}
         initialPid={pid}
         initialTime={t ? Number(t) : undefined}
