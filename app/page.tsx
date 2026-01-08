@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import { BookOpen, Headphones, MessageSquare } from "lucide-react";
 
@@ -67,6 +68,13 @@ export default async function HomePage() {
               <InviteClient />
               <div className="mt-4 text-sm text-muted-foreground">
                 Don’t have a code? Ask the author for an invite link.
+              </div>
+              <div className="mt-2 text-sm text-muted-foreground">
+                Already have an account?{" "}
+                <Link href="/login" className="underline underline-offset-4">
+                  Sign in
+                </Link>
+                .
               </div>
             </div>
 
