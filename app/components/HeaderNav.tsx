@@ -38,28 +38,41 @@ export default function HeaderNav() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isSupabaseConfigured()) {
-      setSignedIn(false);
-      setIsAdmin(false);
-      return;
-    }
-
-    const supabase = getBrowserSupabaseClient();
+    const supabase = isSupabaseConfigured() ? getBrowserSupabaseClient() : null;
     let cancelled = false;
 
     const refresh = async () => {
-      const { data } = await supabase.auth.getSession();
-      const hasUser = Boolean(data.session?.user);
+      let hasUser = false;
+      let email: string | null = null;
+
+      if (supabase) {
+        try {
+          const { data } = await supabase.auth.getSession();
+          hasUser = Boolean(data.session?.user);
+          email = data.session?.user?.email ?? null;
+        } catch {
+          // Some mobile environments (notably iOS Safari/PWA) can block storage access,
+          // causing Supabase session reads to fail. We'll fall back to the server gate.
+          hasUser = false;
+          email = null;
+        }
+      }
+
       if (cancelled) return;
 
-      setSignedIn(hasUser);
       if (!hasUser) {
+        // Fall back to server-side gate cookie (httpOnly sb_ok) so nav works on mobile.
+        const gate = await fetch("/api/gate", { cache: "no-store" }).catch(() => null);
+        const json = (await gate?.json().catch(() => null)) as null | { sessionOk?: boolean };
+        const sessionOk = Boolean(json?.sessionOk);
+        setSignedIn(sessionOk);
         setIsAdmin(false);
         setUserEmail(null);
         return;
       }
 
-      setUserEmail(data.session?.user?.email ?? null);
+      setSignedIn(true);
+      setUserEmail(email);
 
       const token = await getAccessToken();
       if (!token) {
@@ -88,6 +101,12 @@ export default function HeaderNav() {
     };
 
     void refresh();
+
+    if (!supabase) {
+      return () => {
+        cancelled = true;
+      };
+    }
 
     const {
       data: { subscription }
