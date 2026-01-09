@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { getLocalProgress, getSupabaseProgress, type UserProgress } from "@/services/progress";
+import { getCurrentUserId } from "@/services/supabase/auth";
+import { getGateSessionOk } from "@/services/supabase/gate";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -34,7 +36,11 @@ export default function BookResumeClient({
         return;
       }
 
-      if (!cancelled) setProgress(getLocalProgress(bookId));
+      const userId = await getCurrentUserId().catch(() => null);
+      const sessionOk = userId ? true : await getGateSessionOk().catch(() => false);
+      const local = userId ? getLocalProgress(bookId, userId) : sessionOk ? null : getLocalProgress(bookId);
+
+      if (!cancelled) setProgress(local);
     };
 
     void run();

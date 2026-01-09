@@ -37,6 +37,8 @@ import { cn } from "@/lib/utils";
 
 import type { AlignSegment, AlignWord } from "@/services/input/align";
 import { getLocalProgress, getSupabaseProgress, saveProgress } from "@/services/progress";
+import { getCurrentUserId } from "@/services/supabase/auth";
+import { getGateSessionOk } from "@/services/supabase/gate";
 import { getSupabaseUserSettings, updateSupabaseUserSettings } from "@/services/settings";
 import {
   addChapterFeedback,
@@ -779,7 +781,9 @@ export default function ReaderClient({
     let cancelled = false;
 
     const load = async () => {
-      const local = getLocalProgress(bookId);
+      const userId = await getCurrentUserId().catch(() => null);
+      const sessionOk = userId ? true : await getGateSessionOk().catch(() => false);
+      const local = userId ? getLocalProgress(bookId, userId) : sessionOk ? null : getLocalProgress(bookId);
       const remote = await getSupabaseProgress(bookId);
 
       const localDraft: ProgressDraft | null = local

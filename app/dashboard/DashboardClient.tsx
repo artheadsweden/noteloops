@@ -22,6 +22,8 @@ import { titleFromSlug } from "@/lib/display";
 import type { BookManifest } from "@/services/input/manifest";
 import { getLocalProgress, type UserProgress } from "@/services/progress";
 import { listSupabaseProgressForBooks } from "@/services/progress/supabase";
+import { getCurrentUserId } from "@/services/supabase/auth";
+import { getGateSessionOk } from "@/services/supabase/gate";
 
 function toPublicInputUrl(bookId: string, assetPath: string): string {
   return `/input/${encodeURIComponent(bookId)}/${assetPath
@@ -54,10 +56,20 @@ export default function DashboardClient({ manifests }: { manifests: BookManifest
     let cancelled = false;
 
     const run = async () => {
+      const userId = await getCurrentUserId().catch(() => null);
+      const sessionOk = userId ? true : await getGateSessionOk().catch(() => false);
+
       const ids = manifests.map((m) => m.book_id);
       const local: Record<string, UserProgress> = {};
       for (const m of manifests) {
-        const p = getLocalProgress(m.book_id);
+        // Only use anonymous/local progress when the user is not signed in.
+        // If the server gate says we're signed in but the client can't read the session,
+        // do not fall back to anonymous progress (prevents cross-account leakage).
+        const p = userId
+          ? getLocalProgress(m.book_id, userId)
+          : sessionOk
+            ? null
+            : getLocalProgress(m.book_id);
         if (p) local[m.book_id] = p;
       }
 
