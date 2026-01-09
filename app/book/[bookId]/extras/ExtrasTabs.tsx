@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { getBookManifest } from "@/services/input/books";
@@ -76,11 +77,12 @@ export default async function ExtrasTabs({ bookId }: { bookId: string }) {
 
                   {rec.image ? (
                     <div className="mt-4 overflow-hidden rounded-lg border border-border/60 bg-muted">
-                      <img
+                      <Image
                         src={toPublicInputUrl(manifest.book_id, rec.image)}
                         alt={rec.image_alt ?? rec.title}
+                        width={1600}
+                        height={900}
                         className="h-auto w-full"
-                        loading="lazy"
                       />
                     </div>
                   ) : null}
