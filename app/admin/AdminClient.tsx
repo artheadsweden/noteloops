@@ -75,6 +75,7 @@ export default function AdminClient() {
 
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteEmailStatus, setInviteEmailStatus] = useState<string | null>(null);
+  const [inviteEmailAllowedBookIds, setInviteEmailAllowedBookIds] = useState<string[]>([]);
 
   const [inviteTemplateSubject, setInviteTemplateSubject] = useState("");
   const [inviteTemplateBody, setInviteTemplateBody] = useState("");
@@ -90,6 +91,7 @@ export default function AdminClient() {
       sent_at: string | null;
       accepted_at: string | null;
       expires_at: string | null;
+      allowed_book_ids?: string[] | null;
     }>
   >([]);
   const [inviteDeliveriesQuery, setInviteDeliveriesQuery] = useState("");
@@ -530,7 +532,10 @@ export default function AdminClient() {
     const res = await fetch("/api/admin/invite-email", {
       method: "POST",
       headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({
+        email,
+        allowedBookIds: inviteEmailAllowedBookIds.length ? inviteEmailAllowedBookIds : undefined
+      })
     });
 
     const json = (await res.json().catch(() => null)) as null | {
@@ -548,6 +553,7 @@ export default function AdminClient() {
     if (json?.sent) {
       setInviteEmail(" ");
       setInviteEmail("");
+      setInviteEmailAllowedBookIds([]);
       setInviteEmailStatus("Invite email sent.");
       await load();
       return;
@@ -1087,6 +1093,37 @@ export default function AdminClient() {
         <Card>
           <CardContent className="p-4">
             <div className="text-sm text-muted-foreground">Invite by email</div>
+
+            <div className="mt-2 text-xs text-muted-foreground">
+              Choose which books this invite unlocks. Leave empty for all books.
+            </div>
+
+            {books.length ? (
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                {books.map((b) => {
+                  const checked = inviteEmailAllowedBookIds.includes(b.book_id);
+                  return (
+                    <label key={b.book_id} className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4"
+                        checked={checked}
+                        onChange={(e) => {
+                          setInviteEmailAllowedBookIds((prev) => {
+                            if (e.target.checked) return [...prev, b.book_id];
+                            return prev.filter((x) => x !== b.book_id);
+                          });
+                        }}
+                      />
+                      <span className="min-w-0 truncate">
+                        {b.title} <span className="text-xs text-muted-foreground">({b.book_id})</span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            ) : null}
+
             <div className="mt-2 flex flex-wrap gap-2">
               <Input
                 className="min-w-64 flex-1"
@@ -1159,6 +1196,15 @@ export default function AdminClient() {
                       <span className="text-foreground">{it.email}</span>
                       <span className="text-muted-foreground"> · </span>
                       <span className="text-foreground">{it.code}</span>
+                      <span className="text-muted-foreground"> · </span>
+                      <span className="text-muted-foreground">
+                        books:{" "}
+                        {Array.isArray(it.allowed_book_ids) && it.allowed_book_ids.length
+                          ? it.allowed_book_ids
+                              .map((id) => books.find((b) => b.book_id === id)?.title ?? id)
+                              .join(", ")
+                          : "all"}
+                      </span>
                       {it.expires_at ? <span className="text-muted-foreground"> · expires {it.expires_at}</span> : null}
                     </div>
                     <div className="mt-1 text-xs text-muted-foreground">created {it.created_at}</div>

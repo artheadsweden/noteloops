@@ -44,5 +44,26 @@ export async function GET(req: Request) {
 
   const { data, error } = await query;
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
-  return NextResponse.json({ ok: true, items: data ?? [] });
+
+  const rows = (data ?? []) as Array<any>;
+  const codes = Array.from(new Set(rows.map((r) => r.code).filter(Boolean)));
+
+  let allowedByCode = new Map<string, string[] | null>();
+  if (codes.length) {
+    const { data: codeRows } = await supabase
+      .from("invite_codes")
+      .select("code,allowed_book_ids")
+      .in("code", codes);
+
+    for (const r of (codeRows ?? []) as Array<any>) {
+      allowedByCode.set(r.code, Array.isArray(r.allowed_book_ids) ? r.allowed_book_ids : null);
+    }
+  }
+
+  const items = rows.map((row) => ({
+    ...row,
+    allowed_book_ids: allowedByCode.get(row.code) ?? null
+  }));
+
+  return NextResponse.json({ ok: true, items });
 }

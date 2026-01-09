@@ -97,6 +97,7 @@ export async function POST(req: Request) {
     email?: string;
     code?: string;
     revoke_code?: string;
+    allowedBookIds?: string[];
   };
   const email = body?.email?.trim();
   if (!email) return NextResponse.json({ ok: false, error: "Missing email" }, { status: 400 });
@@ -104,7 +105,30 @@ export async function POST(req: Request) {
   const supabase = getServerSupabaseAdminClient();
 
   const revokeCode = body?.revoke_code?.trim()?.toUpperCase() || null;
+  const requestedAllowedBookIds = Array.isArray(body?.allowedBookIds)
+    ? body?.allowedBookIds
+        .map((x) => (typeof x === "string" ? x.trim() : ""))
+        .filter((x) => Boolean(x))
+    : null;
+
+  let allowedBookIdsToUse: string[] | null = requestedAllowedBookIds;
+
   if (revokeCode) {
+    if (!allowedBookIdsToUse) {
+      const { data: oldCodeRow } = await supabase
+        .from("invite_codes")
+        .select("allowed_book_ids")
+        .eq("code", revokeCode)
+        .maybeSingle();
+
+      if (oldCodeRow && Array.isArray((oldCodeRow as any).allowed_book_ids)) {
+        const fromOld = (oldCodeRow as any).allowed_book_ids
+          .map((x: unknown) => (typeof x === "string" ? x.trim() : ""))
+          .filter((x: string) => Boolean(x));
+        allowedBookIdsToUse = fromOld.length ? fromOld : [];
+      }
+    }
+
     const now = new Date().toISOString();
     await supabase
       .from("invite_codes")
@@ -132,7 +156,8 @@ export async function POST(req: Request) {
     active: true,
     revoked_at: null,
     expires_at: expiresAt ? expiresAt.toISOString() : null,
-    max_uses: 1
+    max_uses: 1,
+    allowed_book_ids: allowedBookIdsToUse && allowedBookIdsToUse.length ? allowedBookIdsToUse : null
   });
   if (upsertErr) return NextResponse.json({ ok: false, error: upsertErr.message }, { status: 500 });
 
