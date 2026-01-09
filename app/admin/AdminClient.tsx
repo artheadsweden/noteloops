@@ -27,6 +27,7 @@ type InviteCodeRow = {
   max_uses?: number | null;
   uses_count?: number | null;
   last_used_at?: string | null;
+  allowed_book_ids?: string[] | null;
 };
 
 type ReaderProgressItem = {
@@ -56,10 +57,21 @@ export default function AdminClient() {
   const [waitlistCount, setWaitlistCount] = useState(0);
   const [waitlistItems, setWaitlistItems] = useState<WaitlistEntry[]>([]);
   const [waitlistStatus, setWaitlistStatus] = useState<string | null>(null);
-  const [adminUsers, setAdminUsers] = useState<Array<{ id: string; email: string | null }>>([]);
+  const [adminUsers, setAdminUsers] = useState<
+    Array<{
+      id: string;
+      email: string | null;
+      full_name?: string | null;
+      blocked?: boolean;
+      access_mode?: "all" | "restricted";
+    }>
+  >([]);
   const [origin, setOrigin] = useState<string>("");
   const [code, setCode] = useState("");
   const [status, setStatus] = useState<string | null>(null);
+
+  const [books, setBooks] = useState<Array<{ book_id: string; title: string }>>([]);
+  const [allowedBookIds, setAllowedBookIds] = useState<string[]>([]);
 
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteEmailStatus, setInviteEmailStatus] = useState<string | null>(null);
@@ -118,6 +130,17 @@ export default function AdminClient() {
     }>
   >([]);
 
+  const [userSearch, setUserSearch] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [selectedUserStatus, setSelectedUserStatus] = useState<string | null>(null);
+  const [selectedUserEmail, setSelectedUserEmail] = useState<string | null>(null);
+  const [selectedUserName, setSelectedUserName] = useState<string>("");
+  const [selectedUserGenres, setSelectedUserGenres] = useState<string>("");
+  const [selectedUserWantsInvites, setSelectedUserWantsInvites] = useState<boolean>(false);
+  const [selectedUserAccessMode, setSelectedUserAccessMode] = useState<"all" | "restricted">("all");
+  const [selectedUserBookIds, setSelectedUserBookIds] = useState<string[]>([]);
+  const [selectedUserBlocked, setSelectedUserBlocked] = useState<boolean>(false);
+
   const load = async () => {
     setStatus(null);
     const token = await getAccessToken();
@@ -134,6 +157,22 @@ export default function AdminClient() {
     setIsAdmin(ok);
 
     if (!ok) return;
+
+    const booksRes = await fetch("/api/admin/books", {
+      headers: { authorization: `Bearer ${token}` }
+    });
+    const booksJson = (await booksRes.json().catch(() => null)) as null | {
+      ok?: boolean;
+      items?: Array<{ book_id: string; title: string }>;
+    };
+    if (booksRes.ok && booksJson?.ok) {
+      const sorted = [...(booksJson.items ?? [])].sort((a, b) =>
+        (a.title ?? a.book_id).localeCompare(b.title ?? b.book_id)
+      );
+      setBooks(sorted);
+    } else {
+      setBooks([]);
+    }
 
     const res = await fetch("/api/admin/invite-codes", {
       headers: { authorization: `Bearer ${token}` }
@@ -170,11 +209,17 @@ export default function AdminClient() {
     });
     const usersJson = (await usersRes.json().catch(() => null)) as null | {
       ok?: boolean;
-      items?: Array<{ id: string; email: string | null }>;
+      items?: Array<{
+        id: string;
+        email: string | null;
+        full_name?: string | null;
+        blocked?: boolean;
+        access_mode?: "all" | "restricted";
+      }>;
     };
     if (usersRes.ok && usersJson?.ok) {
       const sorted = [...(usersJson.items ?? [])].sort((a, b) =>
-        (a.email ?? a.id).localeCompare(b.email ?? b.id)
+        (a.email ?? a.full_name ?? a.id).localeCompare(b.email ?? b.full_name ?? b.id)
       );
       setAdminUsers(sorted);
     } else {
@@ -405,7 +450,7 @@ export default function AdminClient() {
     const res = await fetch("/api/admin/invite-codes", {
       method: "POST",
       headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
-      body: JSON.stringify({ code })
+      body: JSON.stringify({ code, allowedBookIds })
     });
 
     const json = (await res.json().catch(() => null)) as null | { ok?: boolean; error?: string };
@@ -415,6 +460,7 @@ export default function AdminClient() {
     }
 
     setCode("");
+    setAllowedBookIds([]);
     setStatus("Saved.");
     await load();
   };
@@ -438,7 +484,7 @@ export default function AdminClient() {
     const res = await fetch("/api/admin/invite-codes", {
       method: "POST",
       headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
-      body: JSON.stringify({ code: newCode })
+      body: JSON.stringify({ code: newCode, allowedBookIds })
     });
 
     const json = (await res.json().catch(() => null)) as null | { ok?: boolean; error?: string };
@@ -543,6 +589,191 @@ export default function AdminClient() {
     await load();
   };
 
+  const cleanupInviteCodes = async () => {
+    setStatus(null);
+    if (!window.confirm("Delete unused invite codes that are revoked/expired/inactive?")) return;
+
+    const token = await getAccessToken();
+    if (!token) return;
+
+    const res = await fetch("/api/admin/invite-codes/cleanup", {
+      method: "POST",
+      headers: { authorization: `Bearer ${token}` }
+    });
+
+    const json = (await res.json().catch(() => null)) as null | { ok?: boolean; deleted?: number; error?: string };
+    if (!res.ok || !json?.ok) {
+      setStatus(json?.error ?? "Failed");
+      return;
+    }
+
+    setStatus(`Cleaned up ${json.deleted ?? 0} codes.`);
+    await load();
+  };
+
+  const loadUserDetails = async (userId: string) => {
+    setSelectedUserStatus(null);
+    const token = await getAccessToken();
+    if (!token) {
+      setSelectedUserStatus("Not logged in");
+      return;
+    }
+
+    const res = await fetch(`/api/admin/users/${encodeURIComponent(userId)}`.toString(), {
+      headers: { authorization: `Bearer ${token}` }
+    });
+
+    const json = (await res.json().catch(() => null)) as any;
+    if (!res.ok || !json?.ok) {
+      setSelectedUserStatus(json?.error ?? "Failed");
+      return;
+    }
+
+    const user = json.user as { id: string; email: string | null; user_metadata?: any };
+    const profile = (json.profile ?? null) as
+      | null
+      | {
+          full_name?: string | null;
+          preferred_genres?: string[] | null;
+          wants_release_invites?: boolean;
+          access_mode?: "all" | "restricted";
+          blocked_at?: string | null;
+        };
+
+    const metaName = (user.user_metadata?.full_name as string | undefined) ?? "";
+    const name = (profile?.full_name ?? metaName) ?? "";
+
+    setSelectedUserEmail(user.email ?? null);
+    setSelectedUserName(name);
+    setSelectedUserGenres((profile?.preferred_genres ?? []).join(", "));
+    setSelectedUserWantsInvites(Boolean(profile?.wants_release_invites));
+    setSelectedUserAccessMode((profile?.access_mode as any) === "restricted" ? "restricted" : "all");
+    setSelectedUserBookIds((json.accessBookIds ?? []) as string[]);
+    setSelectedUserBlocked(Boolean(profile?.blocked_at));
+  };
+
+  const saveSelectedUserProfile = async () => {
+    setSelectedUserStatus(null);
+    const token = await getAccessToken();
+    if (!token) {
+      setSelectedUserStatus("Not logged in");
+      return;
+    }
+
+    const genres = selectedUserGenres
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const res = await fetch(`/api/admin/users/${encodeURIComponent(selectedUserId)}`.toString(), {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        action: "updateProfile",
+        full_name: selectedUserName.trim(),
+        preferred_genres: genres,
+        wants_release_invites: selectedUserWantsInvites
+      })
+    });
+
+    const json = (await res.json().catch(() => null)) as null | { ok?: boolean; error?: string };
+    if (!res.ok || !json?.ok) {
+      setSelectedUserStatus(json?.error ?? "Failed");
+      return;
+    }
+    setSelectedUserStatus("Saved.");
+    await load();
+    await loadUserDetails(selectedUserId);
+  };
+
+  const saveSelectedUserAccess = async () => {
+    setSelectedUserStatus(null);
+    const token = await getAccessToken();
+    if (!token) {
+      setSelectedUserStatus("Not logged in");
+      return;
+    }
+
+    const res = await fetch(`/api/admin/users/${encodeURIComponent(selectedUserId)}`.toString(), {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        action: "setAccess",
+        access_mode: selectedUserAccessMode,
+        book_ids: selectedUserAccessMode === "restricted" ? selectedUserBookIds : []
+      })
+    });
+
+    const json = (await res.json().catch(() => null)) as null | { ok?: boolean; error?: string };
+    if (!res.ok || !json?.ok) {
+      setSelectedUserStatus(json?.error ?? "Failed");
+      return;
+    }
+    setSelectedUserStatus("Saved.");
+    await load();
+    await loadUserDetails(selectedUserId);
+  };
+
+  const toggleSelectedUserBlocked = async () => {
+    setSelectedUserStatus(null);
+    const token = await getAccessToken();
+    if (!token) {
+      setSelectedUserStatus("Not logged in");
+      return;
+    }
+
+    const next = !selectedUserBlocked;
+    const res = await fetch(`/api/admin/users/${encodeURIComponent(selectedUserId)}`.toString(), {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
+      body: JSON.stringify({ action: "setBlocked", blocked: next })
+    });
+
+    const json = (await res.json().catch(() => null)) as null | { ok?: boolean; error?: string };
+    if (!res.ok || !json?.ok) {
+      setSelectedUserStatus(json?.error ?? "Failed");
+      return;
+    }
+
+    setSelectedUserBlocked(next);
+    setSelectedUserStatus(next ? "Blocked." : "Unblocked.");
+    await load();
+  };
+
+  const deleteSelectedUser = async () => {
+    setSelectedUserStatus(null);
+    if (!window.confirm("Delete this user and all related data? This cannot be undone.")) return;
+
+    const token = await getAccessToken();
+    if (!token) {
+      setSelectedUserStatus("Not logged in");
+      return;
+    }
+
+    const res = await fetch(`/api/admin/users/${encodeURIComponent(selectedUserId)}`.toString(), {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
+      body: JSON.stringify({ action: "deleteUser" })
+    });
+
+    const json = (await res.json().catch(() => null)) as null | { ok?: boolean; error?: string };
+    if (!res.ok || !json?.ok) {
+      setSelectedUserStatus(json?.error ?? "Failed");
+      return;
+    }
+
+    setSelectedUserStatus("Deleted.");
+    setSelectedUserId("");
+    setSelectedUserEmail(null);
+    setSelectedUserName("");
+    setSelectedUserGenres("");
+    setSelectedUserWantsInvites(false);
+    setSelectedUserAccessMode("all");
+    setSelectedUserBookIds([]);
+    setSelectedUserBlocked(false);
+    await load();
+  };
+
   if (isAdmin === null) return <div className="text-sm text-muted-foreground">Loading…</div>;
   if (!isAdmin) {
     return (
@@ -556,6 +787,7 @@ export default function AdminClient() {
     <Tabs defaultValue="invites" className="space-y-4">
       <TabsList className="h-auto w-full flex-wrap justify-start">
         <TabsTrigger value="invites">Invites</TabsTrigger>
+        <TabsTrigger value="users">Users</TabsTrigger>
         <TabsTrigger value="email">Email</TabsTrigger>
         <TabsTrigger value="activity">Activity</TabsTrigger>
         <TabsTrigger value="waitlist">Waitlist</TabsTrigger>
@@ -580,6 +812,39 @@ export default function AdminClient() {
                 Generate
               </Button>
             </div>
+
+            <div className="mt-3">
+              <div className="text-xs text-muted-foreground">
+                Books this code unlocks (leave empty for all books)
+              </div>
+              {books.length === 0 ? (
+                <div className="mt-2 text-sm text-muted-foreground">No books found.</div>
+              ) : (
+                <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                  {books.map((b) => {
+                    const checked = allowedBookIds.includes(b.book_id);
+                    return (
+                      <label key={b.book_id} className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4"
+                          checked={checked}
+                          onChange={(e) => {
+                            setAllowedBookIds((prev) => {
+                              if (e.target.checked) return [...prev, b.book_id];
+                              return prev.filter((x) => x !== b.book_id);
+                            });
+                          }}
+                        />
+                        <span className="min-w-0 truncate">
+                          {b.title} <span className="text-xs text-muted-foreground">({b.book_id})</span>
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
 
@@ -587,7 +852,12 @@ export default function AdminClient() {
 
         <Card>
           <CardContent className="p-4">
-            <div className="text-sm text-muted-foreground">Invite codes</div>
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-sm text-muted-foreground">Invite codes</div>
+              <Button type="button" variant="outline" size="sm" onClick={cleanupInviteCodes}>
+                Cleanup unused
+              </Button>
+            </div>
             {items.length === 0 ? (
               <div className="mt-2 text-sm text-muted-foreground">No codes.</div>
             ) : (
@@ -598,6 +868,12 @@ export default function AdminClient() {
                       <div>
                         <div>{it.code}</div>
                         <div className="text-xs text-muted-foreground">{it.active ? "active" : "revoked"}</div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          books:{" "}
+                          {it.allowed_book_ids && it.allowed_book_ids.length > 0
+                            ? it.allowed_book_ids.join(", ")
+                            : "all"}
+                        </div>
                         {it.expires_at ? (
                           <div className="mt-1 text-xs text-muted-foreground">expires: {it.expires_at}</div>
                         ) : null}
@@ -613,6 +889,18 @@ export default function AdminClient() {
                       </div>
                       {it.active ? (
                         <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setCode(it.code);
+                              setAllowedBookIds(it.allowed_book_ids ?? []);
+                              setStatus(null);
+                            }}
+                          >
+                            Edit
+                          </Button>
                           <Button
                             type="button"
                             variant="outline"
@@ -633,6 +921,166 @@ export default function AdminClient() {
             )}
           </CardContent>
         </Card>
+      </TabsContent>
+
+      <TabsContent value="users" className="space-y-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-sm text-muted-foreground">Users</div>
+
+            <div className="mt-2 flex flex-wrap gap-2">
+              <Input
+                className="min-w-64 flex-1"
+                value={userSearch}
+                onChange={(e) => setUserSearch(e.target.value)}
+                placeholder="Search by name or email"
+              />
+
+              <select
+                className="h-10 min-w-64 flex-1 rounded-lg border border-input bg-background px-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                value={selectedUserId}
+                onChange={(e) => {
+                  const id = e.target.value;
+                  setSelectedUserId(id);
+                  if (id) void loadUserDetails(id);
+                }}
+              >
+                <option value="">Select a user…</option>
+                {adminUsers
+                  .filter((u) => {
+                    const q = userSearch.trim().toLowerCase();
+                    if (!q) return true;
+                    return (
+                      (u.email ?? "").toLowerCase().includes(q) ||
+                      ((u as any).full_name ?? "").toLowerCase().includes(q) ||
+                      u.id.toLowerCase().includes(q)
+                    );
+                  })
+                  .map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {(u as any).full_name ? `${(u as any).full_name} — ` : ""}{u.email ?? u.id}
+                      {(u as any).blocked ? " (blocked)" : ""}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            {selectedUserStatus ? (
+              <div className="mt-2 text-sm text-muted-foreground">{selectedUserStatus}</div>
+            ) : null}
+          </CardContent>
+        </Card>
+
+        {selectedUserId ? (
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-sm text-muted-foreground">User details</div>
+
+              <div className="mt-2 space-y-1 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Email:</span> {selectedUserEmail ?? "—"}
+                </div>
+                <div>
+                  <span className="text-muted-foreground">User ID:</span> {selectedUserId}
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Status:</span>{" "}
+                  {selectedUserBlocked ? "blocked" : "active"}
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-4">
+                <div className="grid gap-2">
+                  <div className="text-sm text-muted-foreground">Profile</div>
+
+                  <Input
+                    value={selectedUserName}
+                    onChange={(e) => setSelectedUserName(e.target.value)}
+                    placeholder="Full name"
+                  />
+
+                  <Input
+                    value={selectedUserGenres}
+                    onChange={(e) => setSelectedUserGenres(e.target.value)}
+                    placeholder="Preferred genres (comma-separated)"
+                  />
+
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4"
+                      checked={selectedUserWantsInvites}
+                      onChange={(e) => setSelectedUserWantsInvites(e.target.checked)}
+                    />
+                    <span>Interested in invites to new book releases</span>
+                  </label>
+
+                  <Button type="button" onClick={saveSelectedUserProfile}>
+                    Save profile
+                  </Button>
+                </div>
+
+                <div className="grid gap-2">
+                  <div className="text-sm text-muted-foreground">Book access</div>
+
+                  <select
+                    className="h-10 rounded-lg border border-input bg-background px-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    value={selectedUserAccessMode}
+                    onChange={(e) => setSelectedUserAccessMode(e.target.value as any)}
+                  >
+                    <option value="all">All books</option>
+                    <option value="restricted">Restricted</option>
+                  </select>
+
+                  {selectedUserAccessMode === "restricted" ? (
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {books.map((b) => {
+                        const checked = selectedUserBookIds.includes(b.book_id);
+                        return (
+                          <label key={b.book_id} className="flex items-center gap-2 text-sm">
+                            <input
+                              type="checkbox"
+                              className="h-4 w-4"
+                              checked={checked}
+                              onChange={(e) => {
+                                setSelectedUserBookIds((prev) => {
+                                  if (e.target.checked) return [...prev, b.book_id];
+                                  return prev.filter((x) => x !== b.book_id);
+                                });
+                              }}
+                            />
+                            <span className="min-w-0 truncate">
+                              {b.title} <span className="text-xs text-muted-foreground">({b.book_id})</span>
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+
+                  <Button type="button" onClick={saveSelectedUserAccess}>
+                    Save access
+                  </Button>
+                </div>
+
+                <div className="grid gap-2">
+                  <div className="text-sm text-muted-foreground">Danger zone</div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" variant="outline" onClick={toggleSelectedUserBlocked}>
+                      {selectedUserBlocked ? "Unblock" : "Block"}
+                    </Button>
+                    <Button type="button" variant="outline" onClick={deleteSelectedUser}>
+                      Delete user
+                    </Button>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Blocking prevents the app from granting access (sb_ok) on login.
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : null}
       </TabsContent>
 
       <TabsContent value="email" className="space-y-4">

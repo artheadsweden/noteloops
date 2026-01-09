@@ -26,6 +26,11 @@ type InviteCodeRow = {
   active: boolean;
   created_at: string;
   revoked_at: string | null;
+  expires_at?: string | null;
+  max_uses?: number | null;
+  uses_count?: number | null;
+  last_used_at?: string | null;
+  allowed_book_ids?: string[] | null;
 };
 
 export async function GET(req: Request) {
@@ -35,7 +40,7 @@ export async function GET(req: Request) {
   const supabase = getServerSupabaseAdminClient();
   const { data, error } = await supabase
     .from("invite_codes")
-    .select("code,active,created_at,revoked_at")
+    .select("code,active,created_at,revoked_at,expires_at,max_uses,uses_count,last_used_at,allowed_book_ids")
     .order("created_at", { ascending: false });
 
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
@@ -46,15 +51,23 @@ export async function POST(req: Request) {
   const adminId = await requireAdmin(req);
   if (!adminId) return NextResponse.json({ ok: false }, { status: 403 });
 
-  const body = (await req.json().catch(() => null)) as null | { code?: string };
+  const body = (await req.json().catch(() => null)) as null | {
+    code?: string;
+    allowedBookIds?: string[] | null;
+  };
   const code = body?.code?.trim();
   if (!code) return NextResponse.json({ ok: false, error: "Missing code" }, { status: 400 });
+
+  const allowedBookIds = Array.isArray(body?.allowedBookIds)
+    ? body?.allowedBookIds.map((s) => String(s)).filter(Boolean)
+    : null;
 
   const supabase = getServerSupabaseAdminClient();
   const { error } = await supabase.from("invite_codes").upsert({
     code,
     active: true,
-    revoked_at: null
+    revoked_at: null,
+    allowed_book_ids: allowedBookIds && allowedBookIds.length > 0 ? allowedBookIds : null
   });
 
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });

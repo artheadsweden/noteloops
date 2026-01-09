@@ -16,9 +16,29 @@ export async function POST() {
   });
 
   jar.set({
+    name: "invite_code",
+    value: "",
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 0
+  });
+
+  jar.set({
     name: "sb_ok",
     value: "",
     httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 0
+  });
+
+  jar.set({
+    name: "ui_initials",
+    value: "",
+    httpOnly: false,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",

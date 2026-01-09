@@ -19,6 +19,19 @@ export async function signUp(email: string, password: string) {
   return supabase.auth.signUp({ email, password });
 }
 
+export async function signUpWithName(email: string, password: string, fullName: string) {
+  const supabase = getBrowserSupabaseClient();
+  return supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: fullName
+      }
+    }
+  });
+}
+
 export async function signOut() {
   const supabase = getBrowserSupabaseClient();
   return supabase.auth.signOut();

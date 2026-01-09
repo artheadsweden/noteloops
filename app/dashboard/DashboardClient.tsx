@@ -24,6 +24,7 @@ import { getLocalProgress, type UserProgress } from "@/services/progress";
 import { listSupabaseProgressForBooks } from "@/services/progress/supabase";
 import { getCurrentUserId } from "@/services/supabase/auth";
 import { getGateSessionOk } from "@/services/supabase/gate";
+import { getMyBookAccess, getMyProfile } from "@/services/profile/supabase";
 
 function toPublicInputUrl(bookId: string, assetPath: string): string {
   return `/input/${encodeURIComponent(bookId)}/${assetPath
@@ -51,6 +52,49 @@ export default function DashboardClient({ manifests }: { manifests: BookManifest
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortMode>("recent");
   const [progressByBook, setProgressByBook] = useState<Record<string, UserProgress>>({});
+  const [accessMode, setAccessMode] = useState<"all" | "restricted">("all");
+  const [allowedBookIds, setAllowedBookIds] = useState<string[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const run = async () => {
+      const profile = await getMyProfile().catch(() => null);
+      if (!profile) {
+        if (!cancelled) {
+          setAccessMode("all");
+          setAllowedBookIds(null);
+        }
+        return;
+      }
+
+      const mode = profile.access_mode === "restricted" ? "restricted" : "all";
+      if (mode === "all") {
+        if (!cancelled) {
+          setAccessMode("all");
+          setAllowedBookIds(null);
+        }
+        return;
+      }
+
+      const ids = await getMyBookAccess().catch(() => []);
+      if (!cancelled) {
+        setAccessMode("restricted");
+        setAllowedBookIds(ids ?? []);
+      }
+    };
+
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const visibleManifests = useMemo(() => {
+    if (accessMode !== "restricted") return manifests;
+    const allow = new Set((allowedBookIds ?? []).map(String));
+    return manifests.filter((m) => allow.has(m.book_id));
+  }, [accessMode, allowedBookIds, manifests]);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,9 +103,9 @@ export default function DashboardClient({ manifests }: { manifests: BookManifest
       const userId = await getCurrentUserId().catch(() => null);
       const sessionOk = userId ? true : await getGateSessionOk().catch(() => false);
 
-      const ids = manifests.map((m) => m.book_id);
+      const ids = visibleManifests.map((m) => m.book_id);
       const local: Record<string, UserProgress> = {};
-      for (const m of manifests) {
+      for (const m of visibleManifests) {
         // Only use anonymous/local progress when the user is not signed in.
         // If the server gate says we're signed in but the client can't read the session,
         // do not fall back to anonymous progress (prevents cross-account leakage).
@@ -85,7 +129,7 @@ export default function DashboardClient({ manifests }: { manifests: BookManifest
     return () => {
       cancelled = true;
     };
-  }, [manifests]);
+  }, [visibleManifests]);
 
   const continueItem: ContinueItem | null = useMemo(() => {
     let best: UserProgress | null = null;
@@ -114,12 +158,12 @@ export default function DashboardClient({ manifests }: { manifests: BookManifest
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const items = q
-      ? manifests.filter((m) => {
+      ? visibleManifests.filter((m) => {
           const t = titleFromSlug(m.book_id).toLowerCase();
           const s = (m.summary_short ?? m.summary ?? "").toLowerCase();
           return t.includes(q) || s.includes(q) || m.book_id.toLowerCase().includes(q);
         })
-      : manifests.slice();
+      : visibleManifests.slice();
 
     if (sort === "title") {
       items.sort((a, b) => titleFromSlug(a.book_id).localeCompare(titleFromSlug(b.book_id)));
@@ -135,7 +179,7 @@ export default function DashboardClient({ manifests }: { manifests: BookManifest
       return bt - at;
     });
     return items;
-  }, [manifests, progressByBook, query, sort]);
+  }, [progressByBook, query, sort, visibleManifests]);
 
   const actions = (
     <>
@@ -198,11 +242,19 @@ export default function DashboardClient({ manifests }: { manifests: BookManifest
 
       {filtered.length === 0 ? (
         <EmptyState
-          title={manifests.length === 0 ? "No books found" : "No matches"}
+          title={
+            manifests.length === 0
+              ? "No books found"
+              : accessMode === "restricted" && (allowedBookIds ?? []).length === 0
+                ? "No books assigned"
+                : "No matches"
+          }
           description={
             manifests.length === 0
               ? "Add a book under /public/input and include a manifest.json."
-              : "Try a different search."
+              : accessMode === "restricted" && (allowedBookIds ?? []).length === 0
+                ? "Ask an admin to assign you a book."
+                : "Try a different search."
           }
         />
       ) : (

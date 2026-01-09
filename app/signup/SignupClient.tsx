@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-import { getAccessToken, signUp } from "@/services/supabase/auth";
+import { getAccessToken, signUpWithName } from "@/services/supabase/auth";
 import { getBrowserSupabaseClient, isSupabaseConfigured } from "@/services/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ export default function SignupClient() {
   const configured = useMemo(() => isSupabaseConfigured(), []);
 
   const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [signedIn, setSignedIn] = useState(false);
@@ -136,8 +137,13 @@ export default function SignupClient() {
       return;
     }
 
+    if (!fullName.trim()) {
+      setStatus("Please enter your name.");
+      return;
+    }
+
     setStatus(null);
-    const { error } = await signUp(email, password);
+    const { error } = await signUpWithName(email, password, fullName.trim());
     if (error) {
       setStatus(error.message);
       return;
@@ -180,6 +186,16 @@ export default function SignupClient() {
       ) : null}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid gap-2">
+          <Label htmlFor="fullName">Name</Label>
+          <Input
+            id="fullName"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            autoComplete="name"
+          />
+        </div>
+
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input

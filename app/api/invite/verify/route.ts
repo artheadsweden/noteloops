@@ -140,5 +140,16 @@ export async function POST(req: Request) {
     maxAge: 60 * 60 * 24 * 30
   });
 
+  // Store the specific code so we can apply per-title access on signup.
+  jar.set({
+    name: "invite_code",
+    value: code,
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30
+  });
+
   return NextResponse.json({ ok: true });
 }

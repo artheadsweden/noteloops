@@ -36,6 +36,26 @@ export default function HeaderNav() {
   const [signedIn, setSignedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userInitials, setUserInitials] = useState<string | null>(null);
+
+  const initialsFromName = (name: string): string | null => {
+    const parts = name
+      .trim()
+      .split(/\s+/)
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (parts.length === 0) return null;
+    const first = parts[0]?.[0] ?? "";
+    const last = (parts.length > 1 ? parts[parts.length - 1]?.[0] : "") ?? "";
+    const out = (first + last).toUpperCase();
+    return out.trim() ? out : null;
+  };
+
+  const getCookie = (key: string): string | null => {
+    if (typeof document === "undefined") return null;
+    const m = document.cookie.match(new RegExp(`(?:^|; )${key.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")}=([^;]*)`));
+    return m ? decodeURIComponent(m[1]) : null;
+  };
 
   useEffect(() => {
     const supabase = isSupabaseConfigured() ? getBrowserSupabaseClient() : null;
@@ -50,6 +70,10 @@ export default function HeaderNav() {
           const { data } = await supabase.auth.getSession();
           hasUser = Boolean(data.session?.user);
           email = data.session?.user?.email ?? null;
+          const fullName = (data.session?.user as any)?.user_metadata?.full_name as string | undefined;
+          const fromName = fullName ? initialsFromName(fullName) : null;
+          const fromEmail = email ? email.slice(0, 1).toUpperCase() : null;
+          setUserInitials(fromName ?? fromEmail);
         } catch {
           // Some mobile environments (notably iOS Safari/PWA) can block storage access,
           // causing Supabase session reads to fail. We'll fall back to the server gate.
@@ -68,6 +92,15 @@ export default function HeaderNav() {
         setSignedIn(sessionOk);
         setIsAdmin(false);
         setUserEmail(null);
+
+        // If we can't read the Supabase session, try to display initials from the last known name.
+        // This is a best-effort UI hint only.
+        if (sessionOk) {
+          const cookieInitials = getCookie("ui_initials");
+          setUserInitials(cookieInitials ? cookieInitials.toUpperCase() : null);
+        } else {
+          setUserInitials(null);
+        }
         return;
       }
 
@@ -212,11 +245,7 @@ export default function HeaderNav() {
                 title="Account"
               >
                 <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-muted text-xs font-semibold text-foreground">
-                  {userEmail ? (
-                    userEmail.slice(0, 1).toUpperCase()
-                  ) : (
-                    <User className="h-4 w-4" aria-hidden="true" />
-                  )}
+                  {userInitials ? userInitials : <User className="h-4 w-4" aria-hidden="true" />}
                 </span>
               </Button>
             </DropdownMenuTrigger>
