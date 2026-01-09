@@ -3,7 +3,13 @@ import { notFound } from "next/navigation";
 
 import { getBookManifest } from "@/services/input/books";
 import { getChapterContent } from "@/services/input/chapters";
-import { findAboutAuthorChapterId, getBookExtraRecordings, getBookTimeline } from "@/services/input/extras";
+import {
+  findAboutAuthorChapterId,
+  getBookExtraRecordings,
+  getBookGlossaryHtml,
+  getBookPeopleHtml,
+  getBookTimeline
+} from "@/services/input/extras";
 import AppFrame from "@/app/components/AppFrame";
 import { titleFromSlug } from "@/lib/display";
 import { Button } from "@/components/ui/button";
@@ -33,6 +39,8 @@ export default async function ExtrasPage({
 
   const timeline = await getBookTimeline(bookId).catch(() => null);
   const recordings = await getBookExtraRecordings(bookId).catch(() => null);
+  const peopleHtml = await getBookPeopleHtml(bookId).catch(() => null);
+  const glossaryHtml = await getBookGlossaryHtml(bookId).catch(() => null);
 
   const aboutId = await findAboutAuthorChapterId(bookId);
   const about = aboutId
@@ -41,7 +49,17 @@ export default async function ExtrasPage({
 
   const hasRecordings = Boolean(recordings && recordings.length > 0);
   const hasTimeline = Boolean(timeline && timeline.length > 0);
-  const defaultTab = hasRecordings ? "audio" : hasTimeline ? "timeline" : "about";
+  const hasPeople = Boolean(peopleHtml);
+  const hasGlossary = Boolean(glossaryHtml);
+  const defaultTab = hasRecordings
+    ? "audio"
+    : hasTimeline
+      ? "timeline"
+      : hasPeople
+        ? "people"
+        : hasGlossary
+          ? "glossary"
+          : "about";
 
   return (
     <AppFrame>
@@ -68,6 +86,8 @@ export default async function ExtrasPage({
         <TabsList className="h-auto w-full flex-wrap justify-start">
           {hasRecordings ? <TabsTrigger value="audio">Audio</TabsTrigger> : null}
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
+          {hasPeople ? <TabsTrigger value="people">People</TabsTrigger> : null}
+          {hasGlossary ? <TabsTrigger value="glossary">Glossary</TabsTrigger> : null}
           <TabsTrigger value="about">About</TabsTrigger>
         </TabsList>
 
@@ -137,10 +157,10 @@ export default async function ExtrasPage({
             </CardHeader>
             <CardContent>
               {timeline && timeline.length > 0 ? (
-                <ol className="mt-4 space-y-3 border-l pl-4">
+                <ol className="mt-4 space-y-3 border-l pl-6">
                   {timeline.map((ev, idx) => (
-                    <li key={`${idx}-${ev.title}`} className="relative">
-                      <span className="absolute -left-[9px] top-1 h-3 w-3 rounded-full border bg-background" />
+                    <li key={`${idx}-${ev.title}`} className="relative pl-2">
+                      <span className="absolute -left-[13px] top-1.5 h-3 w-3 rounded-full border bg-background" />
                       <div className="text-sm font-medium">{ev.title}</div>
                       {ev.date ? <div className="text-xs text-muted-foreground">{ev.date}</div> : null}
                       {ev.description ? (
@@ -155,6 +175,52 @@ export default async function ExtrasPage({
             </CardContent>
           </Card>
         </TabsContent>
+
+        {hasPeople ? (
+          <TabsContent value="people">
+            <Card>
+              <CardHeader>
+                <CardTitle>People</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Key figures and forces in the story.
+                </p>
+              </CardHeader>
+              <CardContent>
+                {peopleHtml ? (
+                  <div
+                    className="prose mt-0 max-w-none"
+                    dangerouslySetInnerHTML={{ __html: peopleHtml }}
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground">No people notes yet.</p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        ) : null}
+
+        {hasGlossary ? (
+          <TabsContent value="glossary">
+            <Card>
+              <CardHeader>
+                <CardTitle>Glossary</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Short notes for modern readers, anchored in the world of the book.
+                </p>
+              </CardHeader>
+              <CardContent>
+                {glossaryHtml ? (
+                  <div
+                    className="prose mt-0 max-w-none"
+                    dangerouslySetInnerHTML={{ __html: glossaryHtml }}
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground">No glossary entries yet.</p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        ) : null}
 
         <TabsContent value="about">
           <Card>

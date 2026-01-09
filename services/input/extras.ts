@@ -91,3 +91,17 @@ export async function getBookExtraRecordings(bookId: string): Promise<ExtraRecor
   const extras = ExtrasFileSchema.parse(parsed);
   return extras.recordings && extras.recordings.length > 0 ? extras.recordings : null;
 }
+
+export async function getBookPeopleHtml(bookId: string): Promise<string | null> {
+  // Optional file: /public/input/[bookId]/people.html
+  const peoplePath = resolveBookRootFile(bookId, "people.html");
+  if (!(await fileExists(peoplePath))) return null;
+  return fs.readFile(peoplePath, "utf-8");
+}
+
+export async function getBookGlossaryHtml(bookId: string): Promise<string | null> {
+  // Optional file: /public/input/[bookId]/glossary.html
+  const glossaryPath = resolveBookRootFile(bookId, "glossary.html");
+  if (!(await fileExists(glossaryPath))) return null;
+  return fs.readFile(glossaryPath, "utf-8");
+}
