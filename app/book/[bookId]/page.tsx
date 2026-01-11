@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Sparkles, X } from "lucide-react";
 import BookResumeClient from "@/app/book/[bookId]/BookResumeClient";
+import BookStartClient from "@/app/book/[bookId]/BookStartClient";
 import BookFeedbackClient from "@/app/book/[bookId]/BookFeedbackClient";
 import BookDetailTabsClient from "@/app/book/[bookId]/BookDetailTabsClient";
 import AppFrame from "@/app/components/AppFrame";
@@ -53,6 +54,10 @@ export default async function BookPage({
         ? manifest.summary_long
         : manifest.summary ?? null)
     : null;
+
+  const firstChapterId = manifest.chapters
+    .slice()
+    .sort((a, b) => a.order_index - b.order_index)[0]?.chapter_id;
 
   return (
     <AppFrame>
@@ -120,6 +125,12 @@ export default async function BookPage({
             </div>
 
             <div className="flex flex-wrap gap-2">
+              {firstChapterId ? (
+                <div className="w-full">
+                  <BookStartClient bookId={manifest.book_id} firstChapterId={firstChapterId} />
+                </div>
+              ) : null}
+
               <Button asChild variant="outline" size="sm">
                 <Link href={`/book/${encodeURIComponent(manifest.book_id)}/extras`}>
                   <Sparkles className="h-4 w-4" aria-hidden="true" />
