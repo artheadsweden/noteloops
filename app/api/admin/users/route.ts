@@ -68,7 +68,9 @@ export async function GET(req: Request) {
       email: u.email ?? null,
       full_name: name,
       blocked: Boolean(prof?.blocked_at),
-      access_mode: (prof?.access_mode as any) ?? "all"
+      access_mode: (prof?.access_mode as any) ?? "all",
+      created_at: (u as any).created_at ?? null,
+      last_sign_in_at: (u as any).last_sign_in_at ?? null
     };
   });
 

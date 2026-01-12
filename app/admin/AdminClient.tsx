@@ -50,6 +50,14 @@ type WaitlistEntry = {
   created_at: string;
 };
 
+function formatAdminDate(value: string | null | undefined): string {
+  if (!value) return "—";
+  const d = new Date(value);
+  if (!Number.isFinite(d.getTime())) return String(value);
+  // UTC, stable across clients.
+  return d.toISOString().slice(0, 19).replace("T", " ");
+}
+
 export default function AdminClient() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [items, setItems] = useState<InviteCodeRow[]>([]);
@@ -64,6 +72,8 @@ export default function AdminClient() {
       full_name?: string | null;
       blocked?: boolean;
       access_mode?: "all" | "restricted";
+      created_at?: string | null;
+      last_sign_in_at?: string | null;
     }>
   >([]);
   const [origin, setOrigin] = useState<string>("");
@@ -133,6 +143,12 @@ export default function AdminClient() {
   >([]);
 
   const [userSearch, setUserSearch] = useState("");
+  const [usersSortKey, setUsersSortKey] = useState<
+    "name" | "email" | "created" | "last_sign_in" | "status" | "access"
+  >("email");
+  const [usersSortDir, setUsersSortDir] = useState<"asc" | "desc">("asc");
+  const [usersPage, setUsersPage] = useState<number>(1);
+  const [usersPerPage, setUsersPerPage] = useState<number>(25);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [selectedUserStatus, setSelectedUserStatus] = useState<string | null>(null);
   const [selectedUserEmail, setSelectedUserEmail] = useState<string | null>(null);
@@ -217,6 +233,8 @@ export default function AdminClient() {
         full_name?: string | null;
         blocked?: boolean;
         access_mode?: "all" | "restricted";
+        created_at?: string | null;
+        last_sign_in_at?: string | null;
       }>;
     };
     if (usersRes.ok && usersJson?.ok) {
@@ -227,6 +245,8 @@ export default function AdminClient() {
     } else {
       setAdminUsers([]);
     }
+
+    setUsersPage(1);
 
     setWaitlistStatus(null);
     const waitlistRes = await fetch("/api/admin/waitlist?limit=200", {
@@ -780,6 +800,74 @@ export default function AdminClient() {
     await load();
   };
 
+  const filteredSortedUsers = (() => {
+    const q = userSearch.trim().toLowerCase();
+    const filtered = adminUsers.filter((u) => {
+      if (!q) return true;
+      const name = String((u as any).full_name ?? "").toLowerCase();
+      const email = String(u.email ?? "").toLowerCase();
+      const id = String(u.id ?? "").toLowerCase();
+      return name.includes(q) || email.includes(q) || id.includes(q);
+    });
+
+    const dir = usersSortDir === "desc" ? -1 : 1;
+    const key = usersSortKey;
+
+    return filtered.slice().sort((a, b) => {
+      const aName = String((a as any).full_name ?? "");
+      const bName = String((b as any).full_name ?? "");
+      const aEmail = String(a.email ?? "");
+      const bEmail = String(b.email ?? "");
+
+      if (key === "name") return dir * aName.localeCompare(bName);
+      if (key === "email") return dir * aEmail.localeCompare(bEmail);
+      if (key === "access") {
+        return (
+          dir *
+          String((a as any).access_mode ?? "").localeCompare(String((b as any).access_mode ?? ""))
+        );
+      }
+      if (key === "status") {
+        return dir * (Number(Boolean((a as any).blocked)) - Number(Boolean((b as any).blocked)));
+      }
+      if (key === "created") {
+        return (
+          dir *
+          String((a as any).created_at ?? "").localeCompare(String((b as any).created_at ?? ""))
+        );
+      }
+      if (key === "last_sign_in") {
+        return (
+          dir *
+          String((a as any).last_sign_in_at ?? "").localeCompare(
+            String((b as any).last_sign_in_at ?? "")
+          )
+        );
+      }
+
+      const byEmail = aEmail.localeCompare(bEmail);
+      if (byEmail) return byEmail;
+      return aName.localeCompare(bName);
+    });
+  })();
+
+  const usersTotal = filteredSortedUsers.length;
+  const usersTotalPages = Math.max(1, Math.ceil(usersTotal / Math.max(1, usersPerPage)));
+  const usersPageSafe = Math.min(Math.max(1, usersPage), usersTotalPages);
+  const usersStart = (usersPageSafe - 1) * usersPerPage;
+  const usersPageItems = filteredSortedUsers.slice(usersStart, usersStart + usersPerPage);
+
+  const toggleUsersSort = (
+    nextKey: "name" | "email" | "created" | "last_sign_in" | "status" | "access"
+  ) => {
+    if (usersSortKey !== nextKey) {
+      setUsersSortKey(nextKey);
+      setUsersSortDir("asc");
+      return;
+    }
+    setUsersSortDir((d) => (d === "asc" ? "desc" : "asc"));
+  };
+
   if (isAdmin === null) return <div className="text-sm text-muted-foreground">Loading…</div>;
   if (!isAdmin) {
     return (
@@ -881,7 +969,9 @@ export default function AdminClient() {
                             : "all"}
                         </div>
                         {it.expires_at ? (
-                          <div className="mt-1 text-xs text-muted-foreground">expires: {it.expires_at}</div>
+                          <div className="mt-1 text-xs text-muted-foreground">
+                            expires: {formatAdminDate(it.expires_at)}
+                          </div>
                         ) : null}
                         {typeof it.uses_count === "number" || typeof it.max_uses === "number" ? (
                           <div className="mt-1 text-xs text-muted-foreground">
@@ -938,37 +1028,125 @@ export default function AdminClient() {
               <Input
                 className="min-w-64 flex-1"
                 value={userSearch}
-                onChange={(e) => setUserSearch(e.target.value)}
-                placeholder="Search by name or email"
+                onChange={(e) => {
+                  setUserSearch(e.target.value);
+                  setUsersPage(1);
+                }}
+                placeholder="Filter by name, email, or user id"
               />
 
               <select
-                className="h-10 min-w-64 flex-1 rounded-lg border border-input bg-background px-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                value={selectedUserId}
+                className="h-10 w-32 rounded-lg border border-input bg-background px-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                value={String(usersPerPage)}
                 onChange={(e) => {
-                  const id = e.target.value;
-                  setSelectedUserId(id);
-                  if (id) void loadUserDetails(id);
+                  const n = Number(e.target.value) || 25;
+                  setUsersPerPage(n);
+                  setUsersPage(1);
                 }}
               >
-                <option value="">Select a user…</option>
-                {adminUsers
-                  .filter((u) => {
-                    const q = userSearch.trim().toLowerCase();
-                    if (!q) return true;
-                    return (
-                      (u.email ?? "").toLowerCase().includes(q) ||
-                      ((u as any).full_name ?? "").toLowerCase().includes(q) ||
-                      u.id.toLowerCase().includes(q)
-                    );
-                  })
-                  .map((u) => (
-                    <option key={u.id} value={u.id}>
-                      {(u as any).full_name ? `${(u as any).full_name} — ` : ""}{u.email ?? u.id}
-                      {(u as any).blocked ? " (blocked)" : ""}
-                    </option>
-                  ))}
+                <option value="25">25 / page</option>
+                <option value="50">50 / page</option>
+                <option value="100">100 / page</option>
               </select>
+            </div>
+
+            <div className="mt-3 overflow-hidden rounded-xl border border-border/60 bg-card shadow-[var(--shadow)]">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>
+                      <button type="button" className="hover:underline" onClick={() => toggleUsersSort("name")}>
+                        Name
+                      </button>
+                    </TableHead>
+                    <TableHead>
+                      <button type="button" className="hover:underline" onClick={() => toggleUsersSort("email")}>
+                        Email
+                      </button>
+                    </TableHead>
+                    <TableHead>
+                      <button type="button" className="hover:underline" onClick={() => toggleUsersSort("status")}>
+                        Status
+                      </button>
+                    </TableHead>
+                    <TableHead>
+                      <button type="button" className="hover:underline" onClick={() => toggleUsersSort("access")}>
+                        Access
+                      </button>
+                    </TableHead>
+                    <TableHead>
+                      <button type="button" className="hover:underline" onClick={() => toggleUsersSort("created")}>
+                        Created
+                      </button>
+                    </TableHead>
+                    <TableHead>
+                      <button type="button" className="hover:underline" onClick={() => toggleUsersSort("last_sign_in")}>
+                        Last sign-in
+                      </button>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {usersPageItems.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-sm text-muted-foreground">
+                        No users.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    usersPageItems.map((u) => {
+                      const name = String((u as any).full_name ?? "");
+                      const blocked = Boolean((u as any).blocked);
+                      const access = String((u as any).access_mode ?? "all");
+
+                      return (
+                        <TableRow
+                          key={u.id}
+                          className="cursor-pointer"
+                          onClick={() => {
+                            setSelectedUserId(u.id);
+                            void loadUserDetails(u.id);
+                          }}
+                        >
+                          <TableCell className="font-medium">{name || "—"}</TableCell>
+                          <TableCell className="max-w-[280px] truncate">{u.email ?? u.id}</TableCell>
+                          <TableCell>{blocked ? "blocked" : "active"}</TableCell>
+                          <TableCell>{access}</TableCell>
+                          <TableCell className="whitespace-nowrap">{formatAdminDate((u as any).created_at)}</TableCell>
+                          <TableCell className="whitespace-nowrap">{formatAdminDate((u as any).last_sign_in_at)}</TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
+              <div>
+                Showing {usersTotal === 0 ? 0 : usersStart + 1}–{Math.min(usersStart + usersPerPage, usersTotal)} of {usersTotal}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setUsersPage((p) => Math.max(1, p - 1))}
+                  disabled={usersPageSafe <= 1}
+                >
+                  Prev
+                </Button>
+                <div className="text-xs">Page {usersPageSafe} / {usersTotalPages}</div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setUsersPage((p) => Math.min(usersTotalPages, p + 1))}
+                  disabled={usersPageSafe >= usersTotalPages}
+                >
+                  Next
+                </Button>
+              </div>
             </div>
 
             {selectedUserStatus ? (
@@ -1205,11 +1383,15 @@ export default function AdminClient() {
                               .join(", ")
                           : "all"}
                       </span>
-                      {it.expires_at ? <span className="text-muted-foreground"> · expires {it.expires_at}</span> : null}
+                      {it.expires_at ? (
+                        <span className="text-muted-foreground"> · expires {formatAdminDate(it.expires_at)}</span>
+                      ) : null}
                     </div>
-                    <div className="mt-1 text-xs text-muted-foreground">created {it.created_at}</div>
-                    {it.sent_at ? <div className="mt-1 text-xs text-muted-foreground">sent {it.sent_at}</div> : null}
-                    {it.accepted_at ? <div className="mt-1 text-xs text-muted-foreground">accepted {it.accepted_at}</div> : null}
+                    <div className="mt-1 text-xs text-muted-foreground">created {formatAdminDate(it.created_at)}</div>
+                    {it.sent_at ? <div className="mt-1 text-xs text-muted-foreground">sent {formatAdminDate(it.sent_at)}</div> : null}
+                    {it.accepted_at ? (
+                      <div className="mt-1 text-xs text-muted-foreground">accepted {formatAdminDate(it.accepted_at)}</div>
+                    ) : null}
                   </li>
                 ))}
               </ul>
@@ -1246,7 +1428,7 @@ export default function AdminClient() {
                           {it.code ? <span className="text-muted-foreground"> · {it.code}</span> : null}
                           {it.email ? <span className="text-muted-foreground"> · {it.email}</span> : null}
                         </div>
-                        <div className="mt-1 text-xs text-muted-foreground">{it.created_at}</div>
+                        <div className="mt-1 text-xs text-muted-foreground">{formatAdminDate(it.created_at)}</div>
                       </div>
                       {it.email ? (
                         <Button
@@ -1292,7 +1474,7 @@ export default function AdminClient() {
                     {waitlistItems.map((it) => (
                       <TableRow key={it.id}>
                         <TableCell className="font-medium">{it.email}</TableCell>
-                        <TableCell className="text-muted-foreground">{it.created_at}</TableCell>
+                        <TableCell className="text-muted-foreground">{formatAdminDate(it.created_at)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -1345,7 +1527,7 @@ export default function AdminClient() {
                           )}
                         </TableCell>
                         <TableCell>{p.last_chapter_id}</TableCell>
-                        <TableCell className="text-muted-foreground">{p.updated_at}</TableCell>
+                        <TableCell className="text-muted-foreground">{formatAdminDate(p.updated_at)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -1445,7 +1627,9 @@ export default function AdminClient() {
                           {f.pid ? <span className="text-muted-foreground"> / {f.pid}</span> : null}
                         </div>
                         <div className="mt-1 whitespace-pre-wrap">{f.comment_text}</div>
-                        <div className="mt-2 text-xs text-muted-foreground">{f.email ?? f.user_id} · {f.created_at}</div>
+                        <div className="mt-2 text-xs text-muted-foreground">
+                          {f.email ?? f.user_id} · {formatAdminDate(f.created_at)}
+                        </div>
                       </div>
 
                       <Button type="button" variant="outline" onClick={() => deleteFeedbackAdmin(f.scope, f.id)}>
