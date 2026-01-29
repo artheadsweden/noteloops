@@ -44,3 +44,15 @@ export async function getAccessToken(): Promise<string | null> {
   const { data } = await supabase.auth.getSession();
   return data.session?.access_token ?? null;
 }
+
+export async function resetPasswordForEmail(email: string) {
+  const supabase = getBrowserSupabaseClient();
+  return supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-password`,
+  });
+}
+
+export async function updatePassword(newPassword: string) {
+  const supabase = getBrowserSupabaseClient();
+  return supabase.auth.updateUser({ password: newPassword });
+}
